@@ -1,0 +1,2591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pitchweel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #15171c;
+    --ink-raised: #1c1f26;
+    --ink-line: #2a2e37;
+    --paper: #f2efe9;
+    --paper-dim: #9a9a93;
+    --amber: #d98e48;
+    --amber-dim: #6b4f2e;
+    --blue: #5b8db8;
+    --blue-dim: #2e3f4d;
+    --chrome: #3a3f4b;
+    --red: #b85b5b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .wordmark {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+  }
+  .wordmark span { color: var(--amber); }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--paper-dim);
+    font-family: var(--mono);
+  }
+
+  /* ---------- Unified two-column layout ---------- */
+  .unified-lab {
+    display: grid;
+    grid-template-columns: 1fr 2px 1fr;
+    align-items: start;
+    gap: 0;
+  }
+  .unified-col:first-child { padding-right: 22px; }
+  .unified-col:last-child  { padding-left:  22px; }
+  .unified-divider {
+    background: var(--ink-line);
+    align-self: stretch;
+    min-height: 200px;
+    width: 2px;
+  }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  @media (max-width: 900px) {
+    .unified-lab { grid-template-columns: 1fr; }
+    .unified-divider { display: none; }
+    .unified-col:first-child { padding-right: 0; }
+    .unified-col:last-child  { padding-left: 0; }
+  }
+
+  .card {
+    background: var(--ink-raised);
+    border: 1px solid var(--ink-line);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .card + .card { margin-top: 12px; }
+
+  .card h3 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    margin: 0 0 12px 0;
+    font-weight: 500;
+  }
+
+  /* ---------- Form controls ---------- */
+  .field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    min-width: 0;
+  }
+  .field label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--paper);
+    flex-shrink: 0;
+  }
+  .field .hint {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+    display: block;
+    margin-top: 1px;
+  }
+
+  input[type="text"], input[type="number"], select {
+    background: var(--ink);
+    border: 1px solid var(--chrome);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    width: 140px;
+    transition: border-color 0.15s ease;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--amber);
+  }
+
+  input[type="range"] {
+    flex: 1 1 0;
+    min-width: 60px;
+    max-width: 180px;
+    accent-color: var(--amber);
+  }
+
+  .range-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .range-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--amber);
+    width: 28px;
+    text-align: right;
+  }
+
+  button.go, button.action {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+    background: var(--amber);
+    color: var(--ink);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  button.go:hover, button.action:hover { filter: brightness(1.1); }
+  button.go:active, button.action:active { transform: scale(0.97); }
+
+  button.ghost {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: transparent;
+    border: 1px solid var(--chrome);
+    color: var(--paper-dim);
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button.ghost:hover { border-color: var(--paper-dim); color: var(--paper); }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  /* ---------- Data readout ---------- */
+  .readout {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--paper);
+    background: var(--ink);
+    border: 1px solid var(--ink-line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    word-break: break-word;
+    line-height: 1.6;
+  }
+  .readout .label { color: var(--paper-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .readout .val { color: var(--amber); }
+  .readout .val.blue { color: var(--blue); }
+
+  /* ---------- degree chips (chord builder) ---------- */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--ink);
+    border: 1px solid var(--chrome);
+    color: var(--paper-dim);
+    padding: 5px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.12s ease;
+  }
+  .chip.active {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  .footnote {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+    margin-top: 18px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Transform chain (drag-reorder) ---------- */
+  .chain-wrap { display: flex; flex-direction: column; gap: 5px; position: relative; }
+  .chain-step {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--ink); border: 1px solid var(--ink-line);
+    border-left: 3px solid transparent; border-radius: 6px;
+    padding: 9px 12px; transition: border-left-color .15s, background .15s, opacity .15s;
+  }
+  .chain-step.off { opacity: .55; }
+  .chain-step.on  { border-color: var(--ink-line); border-left-color: var(--amber); background: var(--amber-light, #2a2113); }
+  .chain-step.drag-over { background: var(--blue-dim); border-color: var(--blue); }
+  .chain-step.is-dragging { opacity: .25; border-style: dashed; }
+  .drag-handle {
+    color: var(--paper-dim); cursor: grab; font-size: 14px; padding: 0 2px;
+    touch-action: none; flex-shrink: 0; user-select: none;
+  }
+  .drag-handle:hover { color: var(--paper); }
+  .drag-handle:active { cursor: grabbing; }
+  .op-toggle {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+    padding: 4px 10px; border-radius: 4px; min-width: 36px; text-align: center;
+    flex-shrink: 0; text-transform: uppercase; border: 1px solid var(--chrome);
+    background: transparent; color: var(--paper-dim); cursor: pointer;
+  }
+  .op-toggle.on { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+  .chain-step .step-name {
+    font-family: var(--mono);
+    font-size: 13px; color: var(--paper); flex: 1 1 auto; min-width: 90px;
+  }
+  .chain-step input[type="number"] { width: 60px; padding: 5px 8px; flex-shrink: 0; }
+  .chain-step label.inline-check {
+    display: flex; align-items: center; gap: 4px; font-family: var(--mono);
+    font-size: 10px; color: var(--paper-dim); white-space: nowrap; cursor: pointer; user-select: none;
+  }
+
+  /* ---------- Scale folders / search ---------- */
+  .scale-search-wrap { position: relative; margin-bottom: 10px; }
+  .scale-search {
+    font-family: var(--mono); font-size: 12.5px; width: 100%;
+    background: var(--ink); border: 1px solid var(--chrome); color: var(--paper);
+    border-radius: 6px; padding: 7px 10px;
+  }
+  .scale-search:focus { outline: none; border-color: var(--amber); }
+  .scale-search::placeholder { color: var(--paper-dim); }
+  .scale-folders { display: flex; flex-direction: column; gap: 3px; }
+  .scale-folder-hdr {
+    display: flex; align-items: center; gap: 7px; padding: 7px 10px; cursor: pointer;
+    border-radius: 6px; user-select: none; background: var(--ink);
+    border: 1px solid var(--ink-line); transition: background .1s, border-color .1s;
+  }
+  .scale-folder-hdr:hover { background: var(--blue-dim); border-color: var(--blue); }
+  .scale-folder.open .scale-folder-hdr {
+    background: var(--blue-dim); border-color: var(--blue); border-radius: 6px 6px 0 0; border-bottom: none;
+  }
+  .folder-arrow { font-family: var(--mono); font-size: 9px; color: var(--paper-dim); transition: transform .18s; display: inline-block; flex-shrink: 0; }
+  .scale-folder.open .folder-arrow { transform: rotate(90deg); }
+  .folder-name { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--paper); letter-spacing: .03em; flex: 1; }
+  .scale-folder.open .folder-name { color: var(--blue); }
+  .folder-count {
+    font-family: var(--mono); font-size: 9px; color: var(--paper-dim);
+    background: var(--ink-raised); border: 1px solid var(--chrome);
+    border-radius: 10px; padding: 1px 6px; flex-shrink: 0;
+  }
+  .scale-folder.open .folder-count { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+  .scale-folder-body {
+    display: none; flex-wrap: wrap; gap: 5px; padding: 9px 10px 11px;
+    background: var(--blue-dim); border: 1px solid var(--blue); border-top: none; border-radius: 0 0 6px 6px;
+  }
+  .scale-folder.open .scale-folder-body { display: flex; }
+  .scale-folders.searching .scale-folder:not(.search-hidden) .scale-folder-body { display: flex; }
+  .scale-folder.search-hidden { display: none; }
+  .scale-pill {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .02em;
+    padding: 5px 10px; border-radius: 14px; cursor: pointer;
+    border: 1px solid var(--chrome); background: var(--ink-raised); color: var(--paper-dim);
+    transition: all .1s; white-space: nowrap;
+  }
+  .scale-pill:hover { border-color: var(--blue); color: var(--blue); }
+  .scale-pill.active { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+  .scale-pill.search-match { border-color: var(--blue); color: var(--blue); }
+  .scale-pill.active.search-match { color: var(--amber); }
+  .scale-pill.search-hidden { display: none; }
+
+
+  /* ---------- Criterion toggle ---------- */
+  .criterion-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .criterion-toggle {
+    display: flex;
+    background: var(--ink);
+    border: 1px solid var(--chrome);
+    border-radius: 6px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .ctab {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    background: transparent;
+    border: none;
+    color: var(--paper-dim);
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+  }
+  .ctab.active {
+    background: var(--amber-dim);
+    color: var(--amber);
+  }
+  .ctab:not(.active):hover {
+    color: var(--paper);
+  }
+  .criterion-input-field input {
+    width: 100% !important;
+  }
+  ::selection { background: var(--amber-dim); }
+
+  /* ---------- Helix (3D comprehensive view) ---------- */
+  .helix-section {
+    margin-bottom: 20px;
+  }
+  .helix-card {
+    background: var(--ink-raised);
+    border: 1px solid var(--ink-line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .helix-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .helix-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .helix-controls input[type="range"] {
+    width: 80px;
+    min-width: unset;
+    max-width: unset;
+    flex: none;
+  }
+  .helix-speed-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+    white-space: nowrap;
+  }
+  .helix-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
+  .helix-legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .helix-swatch { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .helix-swatch.root { background: #f2b66b; box-shadow: 0 0 6px #f2b66b; }
+  .helix-swatch.scale { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+  .helix-swatch.chord { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .helix-swatch.anchor { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+  #helix-container {
+    width: 100%;
+    height: 480px;
+    touch-action: none;
+    cursor: grab;
+    position: relative;
+  }
+  #helix-container:active { cursor: grabbing; }
+  #helix-container canvas { display: block; }
+
+  .helix-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px 10px;
+  }
+  .helix-caption {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--paper-dim);
+  }
+  .helix-caption .val { color: var(--paper); }
+  .helix-hint {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--paper-dim);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 640px) {
+    #helix-container { height: 380px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="wordmark">pitch<span>wheel</span></div>
+    <div class="subtitle">exploring the scale/chord relationship</div>
+  </header>
+
+  <!-- ============ HELIX — comprehensive 3D readout ============ -->
+  <div class="helix-section">
+    <div class="helix-card">
+      <div class="helix-head">
+        <div class="helix-legend">
+          <span><span class="helix-swatch root"></span>root</span>
+          <span><span class="helix-swatch scale"></span>scale</span>
+          <span><span class="helix-swatch anchor"></span>degree</span>
+          <span><span class="helix-swatch chord"></span>chord</span>
+        </div>
+        <div class="helix-controls">
+          <button class="ghost" id="helix-play-btn" title="Pause rotation">⏸</button>
+          <span class="helix-speed-label">speed</span>
+          <input type="range" id="helix-speed" min="0.1" max="5" step="0.1" value="1" title="Rotation speed">
+        </div>
+      </div>
+      <div id="helix-container"></div>
+      <div class="helix-foot">
+        <div class="helix-caption" id="helix-caption">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ UNIFIED LAB ============ -->
+  <div class="unified-lab">
+
+    <!-- ---- LEFT COLUMN: Scale Lab ---- -->
+    <div class="unified-col">
+      <div class="section-label">Scale</div>
+
+      <div class="card">
+        <h3>Scale Database</h3>
+        <div class="field">
+          <label for="scale-mod">Mod</label>
+          <input type="number" id="scale-mod" value="12" min="1" max="96">
+        </div>
+        <div class="scale-search-wrap">
+          <input class="scale-search" id="scale-search" type="text" placeholder="Search scales…">
+        </div>
+        <div class="scale-folders" id="scale-folders"></div>
+        <div class="field" id="custom-steps-field" style="margin-top:12px;">
+          <label for="scale-custom">Positions</label>
+          <input type="text" id="scale-custom" value="0,2,4,5,7,9,11">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Scale transform</h3>
+        <div class="chain-wrap" id="scale-chain-wrap"></div>
+      </div>
+
+      <div class="card">
+        <div class="readout" id="scale-readout">—</div>
+        <div class="row" style="margin-top:12px;">
+          <button class="action" id="scale-play">▶ Play ascending</button>
+          <button class="ghost" id="scale-play-chord">▶ Play as chord</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- DIVIDER ---- -->
+    <div class="unified-divider"></div>
+
+    <!-- ---- RIGHT COLUMN: Chord Builder ---- -->
+    <div class="unified-col">
+      <div class="section-label">Chord</div>
+
+      <div class="card">
+        <div class="field" style="margin-bottom:0;">
+          <label for="chord-octave">Octave</label>
+          <div class="range-row">
+            <input type="range" id="chord-octave" min="0" max="9" value="5">
+            <span class="range-val" id="chord-octave-val">+5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Criterion</h3>
+        <div class="criterion-row">
+          <div class="criterion-toggle" id="criterion-toggle">
+            <button class="ctab active" id="criterion-type-position" data-value="position">pos</button>
+            <button class="ctab" id="criterion-type-interval" data-value="interval">int</button>
+          </div>
+          <div class="field criterion-input-field" style="margin-bottom:0; flex:1; min-width:0;">
+            <input type="text" id="criterion-position-input" value="0,2,4" placeholder="0,2,4" style="width:100%;">
+            <input type="text" id="criterion-interval-steps" value="2,2,3" placeholder="2,2,3" style="width:100%; display:none;">
+          </div>
+        </div>
+
+        <!-- hidden radio inputs kept for JS compat -->
+        <input type="radio" name="criterion-type-hidden" id="criterion-type-position-hidden" value="position" checked style="display:none;">
+        <input type="radio" name="criterion-type-hidden" id="criterion-type-interval-hidden" value="interval" style="display:none;">
+        <!-- legacy chip container kept for JS compat, hidden -->
+        <div id="degree-chips" style="display:none;"></div>
+        <div id="criterion-position-mode" style="display:none;"></div>
+        <div id="criterion-interval-mode" style="display:none;"></div>
+
+        <div class="field" style="margin-top:10px;">
+          <label for="chord-shift">Degree</label>
+          <div class="range-row">
+            <input type="range" id="chord-shift" min="-14" max="14" value="0">
+            <span class="range-val" id="chord-shift-val">0</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="chord-rotation">Rotation</label>
+          <input type="number" id="chord-rotation" value="0" style="width:65px;">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="chord-prevoices">Voices</label>
+          <input type="number" id="chord-prevoices" value="0" style="width:65px;">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Chord transform</h3>
+        <div class="chain-wrap" id="chord-chain-wrap"></div>
+      </div>
+
+      <div class="card">
+        <div class="readout" id="chord-readout">—</div>
+        <div class="row" style="margin-top:12px;">
+          <button class="action" id="chord-play">▶ Play as chord</button>
+          <button class="ghost" id="chord-play-arp">▶ Play arpeggio</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// music++ - Porting from C++ primitives
+// PositionVector: absolute cyclic positions (e.g. pitch classes)
+// IntervalVector: cyclic interval/step sequences with an offset
+// select(): generic scale-degree lookup across both representations
+// Scale / Chord: parameterized builders on top of the above
+// ============================================================
+
+function euclideanDivision(dividend, divisor) {
+  let quotient = Math.trunc(dividend / divisor);
+  let remainder = dividend - quotient * divisor;
+  if (remainder < 0) {
+    quotient -= 1;
+    remainder += divisor;
+  }
+  return { quotient, remainder };
+}
+
+function gcd(a, b) {
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b !== 0) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
+
+function lcm(values) {
+  if (values.length === 0) return 1;
+  if (values.length === 1) return Math.abs(values[0]);
+  let result = Math.abs(values[0]);
+  for (let i = 1; i < values.length; i++) {
+    const g = gcd(result, values[i]);
+    result = (result * Math.abs(values[i])) / g;
+  }
+  return result;
+}
+
+// ------------------------------------------------------------
+// Scale library — used by the searchable scale-folders UI.
+// Each scale's positions are 0-based in chromatic-12 space; they get
+// remapped to the active modulus via positionsToIntervalSteps().
+// ------------------------------------------------------------
+const SCALE_LIBRARY = [
+  { cat: "Major and minor", scales: [
+    ["Ionian (Major)",        [0,2,4,5,7,9,11]],
+    ["Dorian",                [0,2,3,5,7,9,10]],
+    ["Phrygian",              [0,1,3,5,7,8,10]],
+    ["Lydian",                [0,2,4,6,7,9,11]],
+    ["Mixolydian",            [0,2,4,5,7,9,10]],
+    ["Aeolian (Natural Minor)",[0,2,3,5,7,8,10]],
+    ["Locrian",               [0,1,3,5,6,8,10]],
+    ["Melodic Minor",         [0,2,3,5,7,9,11]],
+    ["Dorian b2",             [0,1,3,5,7,9,10]],
+    ["Lydian Augmented",      [0,2,4,6,8,9,11]],
+    ["Lydian Dominant",       [0,2,4,6,7,9,10]],
+    ["Melodic Major",         [0,2,4,5,7,8,10]],
+    ["Half Diminished",       [0,2,3,5,6,8,10]],
+    ["Altered Dominant",      [0,1,3,4,6,8,10]],
+    ["Harmonic Minor",        [0,2,3,5,7,8,11]],
+    ["Locrian #6",            [0,1,3,5,6,9,10]],
+    ["Ionian Augmented",      [0,2,4,5,8,9,11]],
+    ["Romanian Minor",        [0,2,3,6,7,9,10]],
+    ["Phrygian Dominant",     [0,1,4,5,7,8,10]],
+    ["Lydian #2",             [0,3,4,6,7,9,11]],
+    ["Ultralocrian",          [0,1,3,4,6,8,9]],
+  ]},
+ { cat: "European", scales: [
+    ["Adonai Malakh",              [0,1,2,3,5,7,9,10]],
+    ["Enigmatic (asc)",            [0,1,4,6,8,10,11]],
+    ["Enigmatic (desc)",           [0,1,4,5,8,10,11]],
+    ["Enigmatic Minor",            [0,1,3,6,8,10,11]],
+    ["Enigmatic Mixed",            [0,1,4,5,6,8,10,11]],
+    ["Flamenco",                   [0,1,3,4,5,7,8,10]],
+    ["Gypsy",                      [0,2,3,6,7,8,10]],
+    ["Gypsy Hexatonic",            [0,1,4,5,7,8,9]],
+    ["Gypsy Inverse",              [0,1,4,5,7,9,11]],
+    ["Gypsy Minor",                [0,2,3,6,7,8,11]],
+    ["Hijaz Major",                [0,1,5,6,8,9,10]],
+    ["Houseini",                   [0,2,3,4,5,7,8,9,10]],
+    ["Houzam",                     [0,3,4,5,7,9,11]],
+    ["Hungarian Major",            [0,3,4,6,7,9,10]],
+    ["Hungarian Major Inverse",    [0,2,3,5,6,8,9]],
+    ["Hungarian Minor b2",         [0,1,2,3,6,7,8,11]],
+    ["Istrian",                    [0,1,3,4,6,7]],
+    ["Jeths",                      [0,2,3,5,6,9,11]],
+    ["Kiourdi",                    [0,2,3,5,6,7,8,9,10]],
+    ["Magen Abot",                 [0,1,3,4,6,8,9,11]],
+    ["Moorish Phrygian",           [0,1,3,4,5,7,8,10,11]],
+    ["Neapolitan Major",           [0,1,3,5,7,9,11]],
+    ["Neapolitan Major b4",        [0,1,3,4,7,9,11]],
+    ["Neapolitan Major b5",        [0,1,3,5,6,9,11]],
+    ["Neapolitan Minor",           [0,1,3,5,7,8,11]],
+    ["Harmonic Neapolitan Minor",  [0,1,2,3,5,7,8,11]],
+    ["Neseveri",                   [0,1,3,6,7,8,10,11]],
+    ["Prokofiev",                  [0,1,3,5,6,8,10,11]],
+    ["Prometheus",                 [0,2,4,6,9,10]],
+    ["Prometheus Neapolitan",      [0,1,4,6,9,10]],
+    ["Romanian Major",             [0,1,4,6,7,9,10]],
+    ["Sabach",                     [0,2,3,4,7,8,10]],
+    ["Sabach Maj7",                [0,2,3,4,7,8,11]],
+    ["Scottish Hexatonic",         [0,2,4,5,7,9]],
+    ["Sengiach",                   [0,3,4,5,7,8,11]],
+    ["Shostakovich",               [0,1,3,4,6,7,9,11]],
+    ["Spanish Heptatonic",         [0,3,4,5,6,8,10]],
+    ["Spanish Octatonic",          [0,1,3,4,5,6,8,10]],
+  ]},
+  { cat: "Asian", scales: [
+    ["Honkoshi",             [0,1,3,5,6,10]],
+    ["Ichilkotsucho",        [0,2,4,5,6,7,9,11]],
+    ["Insen",                [0,1,5,7,8,10]],
+    ["Maqam Shadd'araban",   [0,1,3,4,5,6,9,10]],
+    ["Maqam Hijaz",          [0,1,4,5,7,8,10,11]],
+    ["Maqam Shawq Afza",     [0,2,3,4,5,6,7,8,9,11]],
+    ["Maqam Tarzanuyn",      [0,1,3,4,5,6,7,8,9,10]],
+    ["Nando-Kyemyonjo",      [0,2,3,5,7]],
+    ["Noh",                  [0,2,5,7,8,9,11]],
+    ["Nohkan",               [0,2,5,6,8,9,11]],
+    ["Oriental",             [0,1,4,5,6,9,10]],
+    ["Oriental 2",           [0,1,4,5,6,9,10,11]],
+    ["Pelog",                [0,2,4,6,7,8,11]],
+    ["Persian",              [0,1,4,5,6,8,11]],
+    ["Ritzu",                [0,1,3,5,8,10]],
+    ["Sho",                  [0,2,3,5,7,9]],
+    ["Sho #2",               [0,1,3,4,6,10]],
+    ["Takemitzu Tree 1",     [0,2,3,6,8,11]],
+    ["Takemitzu Tree 2",     [0,2,3,6,8,10]],
+    ["Youlan",               [0,1,2,4,5,6,7,9,10]],
+  ]},
+  { cat: "Indian", scales: [
+    ["Mela Bhavapriya",[0,1,3,6,7,8,10]],["Mela Calanata",[0,3,4,5,7,10]],
+    ["Mela Dhavalambari",[0,1,4,6,7,8,9]],["Mela Dhatuvardhani",[0,3,4,6,7,8,11]],
+    ["Mela Divyamani",[0,1,3,6,7,10,11]],["Mela Ganamurti",[0,1,2,5,7,8,11]],
+    ["Mela Gavambodhi",[0,1,3,6,7,8,9]],["Mela Gayakapriya",[0,1,4,5,7,9,10,11]],
+    ["Mela Hatakambari",[0,1,4,5,7,10,11]],["Mela Jalarnava",[0,1,2,5,6,7,9,11]],
+    ["Mela Jhalavarli",[0,1,2,5,6,7,10,11]],["Mela Jhankaradhvani",[0,2,3,5,7,8,9]],
+    ["Mela Jyotisvarupini",[0,3,4,6,7,8,10]],["Mela Kantamani",[0,2,4,6,7,8,9]],
+    ["Mela Manavati",[0,1,2,5,7,9,11]],["Mela Naganandini",[0,2,4,5,7,10,11]],
+    ["Mela Namanarayani",[0,1,4,6,7,8,10]],["Mela Navanitam",[0,1,2,6,7,9,10]],
+    ["Mela Nitimati",[0,2,3,6,7,10,11]],["Mela Pavani",[0,1,2,6,7,9,11]],
+    ["Mela Ragavardhani",[0,3,4,5,7,8,10]],["Mela Raghupriya",[0,1,2,6,7,10,11]],
+    ["Mela Ratnangi",[0,1,2,5,7,8,10]],["Mela Rupavati",[0,1,3,5,7,10,11]],
+    ["Mela Salaga",[0,1,2,6,7,8,9]],["Mela Syamalangi",[0,2,3,6,7,8,9]],
+    ["Mela Suvarnangi",[0,1,3,6,7,9,11]],["Mela Tenarupi",[0,1,2,5,7,10,11]],
+    ["Mela Venaspati",[0,1,2,5,7,9,10]],["Mela Varunapriya",[0,2,3,5,7,10,11]],
+    ["Mela Visvambhari",[0,1,4,6,7,10,11]],["Mela Yagapriya",[0,3,4,5,7,8,9]],
+    ["Raga Abhogi",[0,2,3,5,9]],["Raga Aivarati",[0,2,4,6,7,9]],
+    ["Raga Amarasenapriya",[0,2,3,6,7,11]],["Raga Audav Tukhari",[0,2,3,5,8]],
+    ["Raga Bhatiyar",[0,1,4,5,6,7,9,11]],["Raga Bhinna Pancama",[0,2,5,7,8,11]],
+    ["Raga Brindabani",[0,2,5,7,10,11]],["Raga Bowli (asc)",[0,1,4,7,8]],
+    ["Raga Bowli (desc)",[0,1,4,7,8,11]],["Raga Budhamanohari",[0,2,4,5,7]],
+    ["Raga Chandrajyoti",[0,1,2,6,7,9]],["Raga Chandrakauns Kafi",[0,3,5,9,10]],
+    ["Raga Chandrakauns Kiravani",[0,3,5,8,11]],["Raga Chandrakauns Modern",[0,3,5,9,11]],
+    ["Raga Chaya Todi",[0,1,3,6,8]],["Raga Chinthamani",[0,2,3,6,7,8,9,10]],
+    ["Raga Deshgaur",[0,1,7,8,11]],["Raga Devaranjani",[0,5,7,8,11]],
+    ["Raga Dhavalangam",[0,1,4,6,7,8]],["Raga Dhavalashri",[0,4,6,7,9]],
+    ["Raga Dipak",[0,2,4,5,6,7]],["Raga Gamakakriya",[0,1,4,6,7,11]],
+    ["Raga Gandharavam",[0,1,3,5,7,10]],["Raga Gangatarangini",[0,4,5,6,8,11]],
+    ["Raga Gaula",[0,1,4,5,7,10]],["Raga Gaurikriya",[0,3,6,7,10,11]],
+    ["Raga Ghantana",[0,2,3,5,8,11]],["Raga Gopikatilaka",[0,2,3,6,7,10]],
+    ["Raga Gowla (asc)",[0,1,5,7,11]],["Raga Gowla (desc)",[0,1,4,5,7,11]],
+    ["Raga Gurjari Todi",[0,1,3,6,8,10]],["Raga Hamsadhvani",[0,2,3,7,11]],
+    ["Raga Hansanandi",[0,1,4,6,9,11]],["Raga Hamsa Vinodini",[0,2,4,5,9,11]],
+    ["Raga Hari Nata",[0,4,5,7,9,11]],["Raga Hejjajji",[0,1,4,6,8,9]],
+    ["Raga Jaganmohanam",[0,2,6,7,8,10]],["Raga Jivantika",[0,1,5,7,9,11]],
+    ["Raga Jyoty",[0,4,6,7,8,10]],["Raga Kalagada",[0,1,4,7,8,9]],
+    ["Raga Kalakanthi",[0,2,3,7,8,9]],["Raga Kalavati",[0,1,4,5,7,9]],
+    ["Raga Kamalamanohari",[0,2,6,7,9,10]],["Raga Kashyapi",[0,1,3,7,8,10]],
+    ["Raga Kedaram (asc)",[0,4,5,7,11]],["Raga Kedaram (desc)",[0,2,4,5,7,11]],
+    ["Raga Khamach (asc)",[0,4,5,7,9,10,11]],["Raga Khamach (desc)",[0,2,4,5,7,9,10]],
+    ["Raga Kshanika",[0,1,5,8,11]],["Raga Kumarapriya",[0,1,2,8,11]],
+    ["Raga Kumurdaki",[0,2,4,6,11]],["Raga Kuntvarali",[0,5,7,9,10]],
+    ["Raga Lalita",[0,1,4,5,8,11]],["Raga Lalita Bhairav",[0,1,4,5,8,10]],
+    ["Raga Latika",[0,2,4,7,8,11]],["Raga Madhukauns",[0,3,6,7,9,10]],
+    ["Raga Malarani",[0,2,6,7,10,11]],["Raga Malayamarutam",[0,1,4,7,9,10]],
+    ["Raga Malahari (asc)",[0,1,5,7,8]],["Raga Malahari (desc)",[0,1,4,5,7,8]],
+    ["Raga Malkauns",[0,3,5,8,10,11]],["Raga Malini",[0,1,3,5,7,8,9]],
+    ["Raga Manaranjani",[0,1,4,7,10]],["Raga Manavi",[0,2,3,7,9,10]],
+    ["Raga Manohari",[0,3,5,7,9,10]],["Raga Marwa Thaat",[0,1,4,6,7,9,11]],
+    ["Raga Matha Kokila",[0,2,7,9,10]],["Raga Megharamji",[0,1,4,5,11]],
+    ["Raga Miam Ki Malhar",[0,2,3,5,7,9,10,11]],["Raga Mohanangi",[0,3,4,7,9]],
+    ["Raga Mruganandana",[0,2,4,6,9,11]],["Raga Multani",[0,2,5,8,9,11]],
+    ["Raga Nabhomani",[0,1,2,6,7]],["Raga Nagagandhari",[0,2,5,7,9,11]],
+    ["Raga Nattai (asc)",[0,3,4,5,7,10,11]],["Raga Nattai (desc)",[0,3,5,7,11]],
+    ["Raga Nattaikurinji",[0,2,4,5,9,10]],["Raga Navamanohari",[0,2,5,7,8,10]],
+    ["Raga Neroshta",[0,2,4,9,11]],["Raga Nishadi",[0,2,6,7,9,11]],
+    ["Raga Padi",[0,1,5,7,8,11]],["Raga Pahadi",[0,2,4,5,7,8,9,10,11]],
+    ["Raga Paras (asc)",[0,4,5,7,8,11]],["Raga Paras (desc)",[0,1,4,5,7,8,11]],
+    ["Raga Priyadharshini",[0,2,5,8,11]],["Raga Puruhutika",[0,5,7,9,11]],
+    ["Raga Putrika",[0,1,2,8,9]],["Raga Rageshri",[0,2,4,5,9,10,11]],
+    ["Raga Ramkali",[0,1,4,5,6,7,8,11]],["Raga Rangini",[0,2,3,6,9,11]],
+    ["Raga Rasamanjari",[0,2,5,6,8,9,11]],["Raga Rasavali",[0,1,5,7,9,10]],
+    ["Raga Rasranjani",[0,2,5,9,11]],["Raga Ratnakanthi",[0,2,4,6,7,11]],
+    ["Raga Rudra Pancama",[0,1,4,5,9,10]],["Raga Rukmangi",[0,1,3,7,10]],
+    ["Raga Salagavarali",[0,1,3,7,9,10]],["Raga Samudhra Priya",[0,3,6,7,10]],
+    ["Raga Santanamanjari",[0,3,4,6,7,8,9]],["Raga Sarasanana",[0,2,4,5,8,11]],
+    ["Raga Sarasvati",[0,2,6,7,9,10]],["Raga Saravati",[0,4,5,7,8,9]],
+    ["Raga Saugandhini",[0,1,6,7,8]],["Raga Saurashtra",[0,1,4,5,7,8,9,11]],
+    ["Raga Shreeranjani",[0,2,3,5,9,10]],["Raga Shri Kalyan",[0,2,6,7,9]],
+    ["Raga Shubravarni",[0,2,6,9,10]],["Raga Sindhura Kafi",[0,2,3,5,7,11]],
+    ["Raga Sindhi-Bhairavi",[0,1,2,3,4,5,7,8,10,11]],["Raga Siva Kambhoji",[0,2,4,5,7,10]],
+    ["Raga Sorati",[0,2,5,7,9,10,11]],["Raga Suddha Mukhari",[0,1,2,5,8,9]],
+    ["Raga Suddha Simantini",[0,1,3,5,7,8]],["Raga Syamalam",[0,2,3,6,7,8]],
+    ["Raga Takka",[0,3,5,7,8,11]],["Raga Tilang",[0,4,5,7,10,11]],
+    ["Raga Trimurti",[0,2,3,7,8,10]],["Raga Valaji",[0,4,7,9,10]],
+    ["Raga Vasanta (asc)",[0,4,5,9,11]],["Raga Vasanta (desc)",[0,1,4,5,9,11]],
+    ["Raga Vegavahini (asc)",[0,4,5,7,9,10]],["Raga Vegavahini (desc)",[0,1,4,5,7,9,10]],
+    ["Raga Vijayanagari",[0,2,3,6,7,9]],["Raga Vijayasri",[0,1,2,6,7,11]],
+    ["Raga Vijayavasanta",[0,4,6,7,10,11]],["Raga Viyogavarali",[0,1,3,5,8,11]],
+    ["Raga Vutari",[0,4,6,7,9,10]],["Raga Zilaf",[0,4,6,7,9,10]],
+  ]},
+{ cat: "Modal", scales: [
+    ["Ionian b5",                       [0,2,4,5,6,9,11]],
+    ["Ionian #5",                       [0,2,4,5,8,9,11]],
+    ["Ionian Augmented #2",             [0,3,4,5,8,9,11]],
+    ["Ionian Augmented b9",             [0,1,4,5,8,9,11]],
+    ["Minor Hexatonic",                 [0,2,3,5,7,10]],
+    ["Major Locrian",                   [0,2,4,5,6,8,10]],
+    ["Jazz Minor #5",                   [0,2,3,5,8,9,11]],
+    ["Full Minor All Flats",            [0,2,3,5,7,8,9,10,11]],
+    ["Dorian Aeolian",                  [0,2,3,5,7,8,9,10]],
+    ["Dorian b2 b4",                    [0,1,3,4,7,9,10]],
+    ["Dorian b2 Maj7",                  [0,1,3,4,6,9,11]],
+    ["Dorian b9 #11",                   [0,1,3,6,7,9,10]],
+    ["Phrygian Hexatonic",              [0,3,5,7,8,10]],
+    ["Phrygian Aeolian b4",             [0,1,2,3,5,7,8,10]],
+    ["Phrygian b4",                     [0,1,3,4,7,8,10]],
+    ["Phrygian b4 Maj7",                [0,1,3,4,7,8,11]],
+    ["Double Phrygian",                 [0,1,3,5,6,9]],
+    ["Ultraphrygian",                   [0,1,3,4,7,8,9]],
+    ["Lydian Hexatonic",                [0,2,4,7,9,11]],
+    ["Lydian #2 Hexatonic",             [0,3,4,7,9,11]],
+    ["Lydian #2 #6",                    [0,3,4,6,7,10,11]],
+    ["Lydian Dominant b6",              [0,2,4,6,7,8,10]],
+    ["Lydian Mixolydian",               [0,2,4,5,6,7,9,10,11]],
+    ["Lydian Diminished",               [0,2,3,6,7,9,11]],
+    ["Lydian #6",                       [0,2,4,6,7,10,11]],
+    ["Lydian Augmented Dominant",       [0,2,4,6,8,9,10]],
+    ["Mixolydian Hexatonic",            [0,2,5,7,9,10]],
+    ["Mixolydian b5",                   [0,2,4,5,6,9,10]],
+    ["Mixolydian Augmented",            [0,2,4,5,8,9,10]],
+    ["Mixolydian Augmented Maj9",       [0,1,4,5,8,9,10]],
+    ["Aeolian b1",                      [0,3,4,6,8,9,11]],
+    ["Locrian Dominant",                [0,1,4,5,6,8,10]],
+    ["Locrian bb7",                     [0,1,3,5,6,8,9]],
+    ["Locrian bb3 bb7",                 [0,1,2,5,6,8,9]],
+    ["Locrian Maj7",                    [0,1,3,5,6,8,11]],
+    ["Semilocrian b4",                  [0,2,3,4,6,8,10]],
+    ["Superlocrian bb3",                [0,1,2,4,6,8,10]],
+    ["Superlocrian Maj7",               [0,1,3,4,6,8,11]],
+    ["Superlocrian bb6 bb7",            [0,1,3,4,6,7,9]],
+    ["Superlocrian #6",                 [0,1,3,4,6,9,10]],
+    ["Ultralocrian bb3",                [0,1,2,4,6,8,9]],
+    ["Harmonic Major",                  [0,2,4,5,7,8,11]],
+    ["Harmonic Major 2",                [0,2,4,5,8,9,11]],
+    ["Harmonic Minor b5",               [0,2,3,5,6,8,11]],
+    ["Harmonic Minor Inverse",          [0,1,4,5,7,9,10]],
+    ["Double Harmonic",                 [0,1,4,5,7,8,11]],
+    ["Chromatic Dorian",                [0,1,2,5,7,8,9]],
+    ["Chromatic Dorian Inverse",        [0,3,4,5,7,10,11]],
+    ["Chromatic Diatonic Dorian",       [0,1,2,3,5,7,8,9,10]],
+    ["Chromatic Phrygian",              [0,3,4,5,8,10,11]],
+    ["Chromatic Phrygian Inverse",      [0,1,2,4,7,8,9]],
+    ["Chromatic Lydian",                [0,1,4,5,6,9,11]],
+    ["Chromatic Lydian Inverse",        [0,1,3,6,7,8,11]],
+    ["Chromatic Mixolydian",            [0,1,2,5,6,7,10]],
+    ["Chromatic Mixolydian 2",          [0,1,2,4,6,7,10]],
+    ["Chromatic Mixolydian Inverse",    [0,2,5,6,7,10,11]],
+    ["Chromatic Hypodorian",            [0,2,3,4,7,8,9]],
+    ["Chromatic Hypodorian Inverse",    [0,3,4,5,8,9,10]],
+    ["Chromatic Hypolydian",            [0,1,4,6,7,8,11]],
+    ["Chromatic Hypophrygian Inverse",  [0,1,2,5,6,7,9]],
+    ["Chromatic Permutated Diatonic Dorian",[0,1,2,4,5,7,8,9,11]],
+    ["Major Minor Mixed",               [0,2,3,4,5,7,8,9,10,11]],
+    ["Minor Pentatonic with Leading Tones",[0,2,3,4,5,6,7,9,10,11]],
+    ["Leading Whole-Tone",              [0,2,4,6,8,10,11]],
+  ]},
+  { cat: "Jazz", scales: [
+    ["Blues",                     [0,3,5,6,7,10]],
+    ["Blues Heptatonic",          [0,2,3,5,6,9,10]],
+    ["Blues Heptatonic 2",        [0,3,5,6,7,9,10]],
+    ["Blues Octatonic",           [0,2,3,5,6,7,9,10]],
+    ["Blues Enneatonic",          [0,2,3,4,5,7,9,10,11]],
+    ["Blues Enneatonic 2",        [0,2,3,4,5,6,7,9,10]],
+    ["Blues Dorian Hexatonic",    [0,1,3,4,7,9]],
+    ["Blues Phrygian",            [0,1,3,5,6,7,10]],
+    ["Blues Minor Maj7",          [0,3,5,6,7,11]],
+    ["Blues Modified",            [0,2,3,5,6,7,10]],
+    ["Blues Leading Tone",        [0,3,5,6,7,10,11]],
+    ["Rock 'n Roll",              [0,3,4,5,7,9,10]],
+    ["Bebop",                     [0,2,4,5,7,9,10,11]],
+    ["Bebop Major",               [0,2,4,5,7,8,9,11]],
+    ["Bebop Major Hexatonic",     [0,2,4,7,8,9]],
+    ["Bebop Major Heptatonic",    [0,2,4,5,7,8,9]],
+    ["Bebop Minor",               [0,2,3,4,7,9,10]],
+    ["Bebop Dorian",              [0,2,3,4,5,7,9,10]],
+    ["Bebop Melodic Minor",       [0,2,3,5,7,8,9,11]],
+    ["Bebop Harmonic Minor",      [0,2,3,5,7,8,10,11]],
+    ["Bebop Half-diminished",     [0,1,3,5,6,7,8,11]],
+    ["Bebop Locrian",             [0,1,3,5,6,7,8,10]],
+    ["Bebop Chromatic",           [0,1,2,4,5,7,9,10,11]],
+  ]},
+  { cat: "Symmetric", scales: [
+    ["Whole-Tone",                    [0,2,4,6,8,10]],
+    ["Augmented",                     [0,3,4,7,8,11]],
+    ["Inverted Augmented",            [0,1,4,5,8,9]],
+    ["Diminished",                    [0,2,3,5,6,8,9,11]],
+    ["Diminished Half-tone",          [0,1,3,4,6,7,9,10]],
+    ["Chromatic",                     [0,1,2,3,4,5,6,7,8,9,10,11]],
+    ["Tritone",                       [0,1,4,6,7,10]],
+    ["Raga Neelangi",                 [0,2,3,6,8,9]],
+    ["Messiaen 2nd Mode Truncated",   [0,1,3,6,7,9]],
+    ["Messiaen 3rd Mode",             [0,2,3,4,6,7,8,10,11]],
+    ["Messiaen 4th Mode",             [0,1,2,5,6,7,8,11]],
+    ["Messiaen 4th Mode Inverse",     [0,3,4,5,6,9,10,11]],
+    ["Messiaen 5th Mode",             [0,1,5,6,7,11]],
+    ["Messiaen 5th Mode Inverse",     [0,4,5,6,10,11]],
+    ["Messiaen 6th Mode",             [0,2,4,5,6,8,10,11]],
+    ["Messiaen 6th Mode Inverse",     [0,1,2,4,6,7,8,10]],
+    ["Messiaen 7th Mode",             [0,1,2,3,5,6,7,8,9,11]],
+    ["Messiaen 7th Mode Inverse",     [0,2,3,4,5,6,8,9,10,11]],
+    ["Genus Chromaticum",             [0,1,3,4,5,7,8,9,11]],
+    ["Two-semitone Tritone",          [0,1,2,6,7,8]],
+    ["Symmetrical Decatonic",         [0,1,2,4,5,6,7,8,10,11]],
+    ["Van Der Host",                  [0,1,3,5,6,7,9,11]],
+  ]},
+ { cat: "Misc", scales: [
+    ["Algerian Octatonic",      [0,2,3,5,6,7,8,11]],
+    ["Algerian",                [0,2,3,6,7,8,11]],
+    ["Eskimo Hexatonic",        [0,2,4,6,8,9]],
+    ["Eskimo Hexatonic 2",      [0,2,4,6,8,11]],
+    ["Hamel",                   [0,1,3,5,7,8,10,11]],
+    ["Hawaiian",                [0,2,3,7,9,11]],
+    ["LG Octatonic",            [0,1,3,4,5,7,9,10]],
+    ["Pyramid Hexatonic",       [0,2,3,5,6,9]],
+    ["Nonatonic 2",             [0,1,3,4,5,6,7,9,10]],
+    ["Symmetrical Nonatonic",   [0,1,2,4,6,7,8,10,11]],
+  ]},
+];
+
+// ------------------------------------------------------------
+// PositionVector
+// ------------------------------------------------------------
+class PositionVector {
+  constructor(data = [0], mod = 12, userRange = 0, rangeUpdate = true, user = false) {
+    this.data = [...data];
+    this.mod = mod;
+    this.userRange = userRange > 0 ? userRange : mod;
+    this.rangeUpdate = rangeUpdate;
+    this.user = user;
+    this.range = 0;
+    this.range = this._initializeRange();
+  }
+
+  _rangeCalculation() {
+    const modulo = this.user ? this.userRange : this.mod;
+    if (this.data.length === 0) return modulo;
+    const maxValue = Math.max(...this.data);
+    const minValue = Math.min(...this.data);
+    const span = maxValue - minValue;
+    const { quotient } = euclideanDivision(span, modulo);
+    return modulo * (quotient + 1);
+  }
+
+  _initializeRange() {
+    return this.rangeUpdate ? this._rangeCalculation() : (this.user ? this.userRange : this.mod);
+  }
+
+  _updateRangeIfNeeded() {
+    if (this.rangeUpdate) this.range = this._rangeCalculation();
+  }
+
+  size() { return this.data.length; }
+  getData() { return [...this.data]; }
+  getMod() { return this.mod; }
+  getUserRange() { return this.userRange; }
+  getRange() { return this.range; }
+  getRangeUpdate() { return this.rangeUpdate; }
+  getUser() { return this.user; }
+
+  setMod(m) { this.mod = m; this._updateRangeIfNeeded(); }
+  setUserRange(r) { this.userRange = r; this._updateRangeIfNeeded(); }
+  setRange(r) { this.range = r; }
+  setRangeUpdate(b) { this.rangeUpdate = b; this._updateRangeIfNeeded(); }
+  setUser(b) { this.user = b; this._updateRangeIfNeeded(); }
+
+  element(index) {
+    const size = this.data.length;
+    if (size === 0) return 0;
+    const div = euclideanDivision(index, size);
+    const cycles = (index - div.remainder) / size;
+    const effectiveRange = this.getRange();
+    return this.data[div.remainder] + Math.abs(effectiveRange) * cycles;
+  }
+
+  get(index) { return this.element(index); }
+
+  // operator+ / operator- with a scalar: shift every element
+  plusScalar(n) {
+    return new PositionVector(this.data.map(v => v + n), this.mod, this.userRange, this.rangeUpdate, this.user);
+  }
+  minusScalar(n) {
+    return this.plusScalar(-n);
+  }
+
+  rotoTranslate(startOffset, length = 0) {
+    const outLength = length === 0 ? this.data.length : Math.abs(length);
+    const newData = new Array(outLength);
+    for (let i = 0; i < outLength; i++) newData[i] = this.element(startOffset + i);
+    return new PositionVector(newData, this.mod, this.userRange, this.rangeUpdate, this.user);
+  }
+
+  complement() {
+    const effectiveRange = this.getRange();
+    if (this.data.length === 0) {
+      const universe = [];
+      for (let i = 0; i < effectiveRange; i++) universe.push(i);
+      return new PositionVector(universe, this.mod, this.userRange, this.rangeUpdate, this.user);
+    }
+    const minValue = Math.min(...this.data);
+    const normalized = this.minusScalar(minValue);
+    const normalizedSet = new Set(normalized.data);
+    const complementData = [];
+    for (let i = 0; i < effectiveRange; i++) {
+      if (!normalizedSet.has(i)) complementData.push(i);
+    }
+    return new PositionVector(complementData, this.mod, this.userRange, this.rangeUpdate, this.user).plusScalar(minValue);
+  }
+
+  inversion(axisIndex, sortOutput = true) {
+    if (this.data.length === 0) return this;
+    const size = this.data.length;
+    const normalizedAxisIndex = euclideanDivision(axisIndex, size).remainder;
+    const axisValue = this.data[normalizedAxisIndex];
+    let invertedData = this.data.map(v => 2 * axisValue - v);
+    if (sortOutput) invertedData = [...invertedData].sort((a, b) => a - b);
+    return new PositionVector(invertedData, this.mod, this.userRange, this.rangeUpdate, this.user);
+  }
+
+  // "negative" — reflection through an axis position without the forced sort,
+  // used by Chord transforms as a distinct option from inversion.
+  negative(axisIndex = 0) {
+    return this.inversion(axisIndex, false);
+  }
+
+  static adaptToLCM(vectors) {
+    if (vectors.length === 0) return [];
+    const uniqueModulos = [...new Set(vectors.map(v => v.mod))];
+    if (uniqueModulos.length === 1) return vectors;
+    const l = lcm(uniqueModulos);
+    return vectors.map(pv => {
+      const scaleFactor = l / pv.mod;
+      const scaledData = pv.data.map(v => v * scaleFactor);
+      const scaledUserRange = pv.userRange * scaleFactor;
+      const scaledRange = pv.range * scaleFactor;
+      const adapted = new PositionVector(scaledData, l, scaledUserRange, false, pv.user);
+      adapted.setRange(scaledRange);
+      return adapted;
+    });
+  }
+}
+
+// ------------------------------------------------------------
+// IntervalVector
+// ------------------------------------------------------------
+class IntervalVector {
+  constructor(data = [0], offset = 0, mod = 12) {
+    this.data = [...data];
+    this.offset = offset;
+    this.mod = mod;
+  }
+
+  size() { return this.data.length; }
+  getData() { return [...this.data]; }
+  getOffset() { return this.offset; }
+  getMod() { return this.mod; }
+  setOffset(o) { this.offset = o; }
+  setMod(m) { this.mod = m; }
+
+  element(i) {
+    if (this.data.length === 0) return 0;
+    const size = this.data.length;
+    const div = euclideanDivision(i, size);
+    return this.data[div.remainder];
+  }
+
+  get(index) { return this.element(index); }
+
+  rotate(r, n = 0) {
+    n = Math.abs(n);
+    if (n === 0) n = this.data.length;
+    const out = new Array(n);
+    for (let i = 0; i < n; i++) out[i] = this.element(r + i);
+    return new IntervalVector(out, this.offset, this.mod);
+  }
+
+  rotoTranslate(r, n = 0) {
+    n = Math.abs(n);
+    const dataSize = this.data.length;
+    if (n === 0) n = dataSize;
+    const out = new Array(n);
+    for (let i = 0; i < n; i++) out[i] = this.element(r + i);
+
+    let sum = 0;
+    if (Math.abs(r) < dataSize) {
+      if (r >= 0) {
+        for (let i = 0; i < r; i++) sum += this.element(i);
+      } else {
+        for (let i = 0; i < -r; i++) sum -= this.element(dataSize - 1 - i);
+      }
+    } else {
+      const div = euclideanDivision(r, dataSize);
+      if (r >= 0) {
+        for (let i = 0; i < dataSize; i++) {
+          const mult = i < div.remainder ? div.quotient + 1 : div.quotient;
+          sum += this.element(i) * mult;
+        }
+      } else {
+        const thresh = dataSize + div.remainder;
+        for (let i = 0; i < dataSize; i++) {
+          const mult = i >= thresh ? div.quotient - 1 : div.quotient;
+          sum += this.element(i) * mult;
+        }
+      }
+    }
+    return new IntervalVector(out, this.offset + sum, this.mod);
+  }
+
+  reverse() {
+    const out = new Array(this.data.length);
+    for (let i = 0; i < this.data.length; i++) out[i] = this.data[this.data.length - 1 - i];
+    return new IntervalVector(out, this.offset, this.mod);
+  }
+
+  inversion(axisIndex = 0) {
+    if (this.data.length === 0) return this;
+    const size = this.data.length;
+    const div = euclideanDivision(axisIndex, size + 1);
+    const normalizedAxis = div.remainder;
+    const result = [...this.data];
+
+    for (let i = 0; i < Math.floor(normalizedAxis / 2); i++) {
+      [result[i], result[normalizedAxis - 1 - i]] = [result[normalizedAxis - 1 - i], result[i]];
+    }
+    const start = normalizedAxis;
+    const end = size;
+    const len = end - start;
+    for (let i = 0; i < Math.floor(len / 2); i++) {
+      [result[start + i], result[end - 1 - i]] = [result[end - 1 - i], result[start + i]];
+    }
+    return new IntervalVector(result, this.offset, this.mod);
+  }
+
+  singleMirror(position, left) {
+    const out = [...this.data];
+    const length = out.length;
+    if (position < 0 || position > length) return this;
+
+    if (left) {
+      for (let i = 0; i < Math.floor(position / 2); i++) {
+        [out[i], out[position - 1 - i]] = [out[position - 1 - i], out[i]];
+      }
+    } else {
+      const end = position + Math.floor((length - position) / 2);
+      for (let i = position; i < end; i++) {
+        [out[i], out[length - 1 - (i - position)]] = [out[length - 1 - (i - position)], out[i]];
+      }
+    }
+    return new IntervalVector(out, this.offset, this.mod);
+  }
+
+  static adaptToLCM(vectors) {
+    if (vectors.length === 0) return [];
+    const uniqueModulos = [...new Set(vectors.map(v => v.mod).filter(m => m !== 0))];
+    if (uniqueModulos.length === 0 || uniqueModulos.length === 1) return vectors;
+    const l = lcm(uniqueModulos);
+    return vectors.map(iv => {
+      if (iv.mod === 0) return iv;
+      const scaleFactor = l / iv.mod;
+      const scaledData = iv.data.map(v => v * scaleFactor);
+      const scaledOffset = iv.offset * scaleFactor;
+      return new IntervalVector(scaledData, scaledOffset, l);
+    });
+  }
+}
+
+// ------------------------------------------------------------
+// Conversions between positions and intervals
+// ------------------------------------------------------------
+function positionsToIntervals(positions) {
+  const mod = positions.getMod();
+  if (positions.size() === 0) return new IntervalVector([], 0, mod);
+  const posData = positions.getData();
+  const intervalData = [];
+  if (posData.length > 1) {
+    for (let i = 0; i < posData.length; i++) {
+      intervalData.push(positions.get(i + 1) - positions.get(i));
+    }
+  }
+  return new IntervalVector(intervalData, positions.get(0), mod);
+}
+
+function intervalsToPositions(intervals) {
+  const mod = intervals.getMod();
+  const intervalData = intervals.getData();
+  if (intervalData.length === 0) return new PositionVector([0], mod, 0, true, false);
+
+  const posData = [];
+  let currentPos = intervals.getOffset();
+  posData.push(currentPos);
+  for (let i = 0; i < intervalData.length - 1; i++) {
+    currentPos += intervalData[i];
+    posData.push(currentPos);
+  }
+  return new PositionVector(posData, mod, 0, true, false);
+}
+
+// ------------------------------------------------------------
+// select() — 4 overloads dispatched by argument type
+// ------------------------------------------------------------
+function selectPosPos(source, criterion, criterionRotation = 0, voices = 0) {
+  const sourceData = source.getData();
+  const criterionModulo = sourceData.length;
+  const actualCriterion = new PositionVector(criterion.getData(), criterionModulo);
+  actualCriterion.setMod(source.size());
+  const rotatedCriterion = criterionRotation !== 0
+    ? actualCriterion.rotoTranslate(criterionRotation, voices)
+    : actualCriterion;
+
+  const outLength = voices > 0 ? voices : rotatedCriterion.size();
+  const result = new Array(outLength);
+  for (let k = 0; k < outLength; k++) result[k] = source.get(rotatedCriterion.get(k));
+
+  return new PositionVector(result, source.getMod(), source.getUserRange(), source.getRangeUpdate(), source.getUser());
+}
+
+function selectPosInt(source, criterion, criterionRotation = 0, voices = 0) {
+  let actualCriterion = criterion;
+  actualCriterion.setMod(source.size());
+  const rotatedCriterion = criterionRotation !== 0
+    ? actualCriterion.rotate(criterionRotation, voices)
+    : actualCriterion;
+
+  const outLength = voices > 0 ? voices : rotatedCriterion.size();
+  const result = new Array(outLength);
+  let cumulativePosition = rotatedCriterion.getOffset();
+  for (let k = 0; k < outLength; k++) {
+    result[k] = source.get(cumulativePosition);
+    cumulativePosition += rotatedCriterion.get(k);
+  }
+
+  return new PositionVector(result, source.getMod(), source.getUserRange(), source.getRangeUpdate(), source.getUser());
+}
+
+function selectIntInt(source, indices, criterionRotation = 0, voices = 0) {
+  let actualCriterion = indices;
+  actualCriterion.setMod(source.size());
+  const rotatedCriterion = criterionRotation !== 0
+    ? actualCriterion.rotate(criterionRotation, voices)
+    : actualCriterion;
+
+  const sourceOffset = source.getOffset();
+  const criterionOffset = rotatedCriterion.getOffset();
+
+  let sOut = sourceOffset;
+  for (let j = 0; j < criterionOffset; j++) sOut += source.get(j);
+
+  const outLength = voices > 0 ? voices : rotatedCriterion.size();
+  const result = new Array(outLength);
+  let cumulativeIndex = criterionOffset;
+  for (let k = 0; k < outLength; k++) {
+    let sum = 0;
+    const spanLength = rotatedCriterion.get(k);
+    for (let j = 0; j < spanLength; j++) sum += source.get(cumulativeIndex + j);
+    result[k] = sum;
+    cumulativeIndex += spanLength;
+  }
+
+  return new IntervalVector(result, sOut, source.getMod());
+}
+
+function selectIntPos(source, criterion, criterionRotation = 0, voices = 0) {
+  const off = source.getOffset();
+  const criterionModulo = source.getData().length;
+  let actualCriterion = criterion;
+  actualCriterion.setMod(source.size());
+  const rotatedCriterion = criterionRotation !== 0
+    ? actualCriterion.rotoTranslate(criterionRotation, voices)
+    : actualCriterion;
+
+  if (rotatedCriterion.size() === 0) return new IntervalVector([], source.getOffset(), source.getMod());
+
+  const outLength = voices > 0 ? voices : rotatedCriterion.size();
+  const result = new Array(outLength);
+  const n = source.size();
+
+  for (let k = 0; k < outLength; k++) {
+    const p_k = rotatedCriterion.get(k);
+    const p_next = rotatedCriterion.get(k + 1);
+    let delta_k = p_next - p_k;
+    if (delta_k <= 0) delta_k += n;
+    let sum = 0;
+    for (let j = 0; j < delta_k; j++) sum += source.get(p_k + j);
+    result[k] = sum;
+  }
+
+  let sOut = off;
+  if (criterion.get(0) >= 0) {
+    for (let j = 0; j < criterion.get(0); j++) sOut += source.get(j);
+  } else {
+    for (let j = criterion.get(0); j < 0; j++) sOut -= source.get(j);
+  }
+
+  return new IntervalVector(result, sOut, source.getMod());
+}
+
+// Generic dispatcher mirroring the C++ overload resolution
+function select(source, criterion, criterionRotation = 0, voices = 0) {
+  const srcIsPos = source instanceof PositionVector;
+  const critIsPos = criterion instanceof PositionVector;
+  if (srcIsPos && critIsPos) return selectPosPos(source, criterion, criterionRotation, voices);
+  if (srcIsPos && !critIsPos) return selectPosInt(source, criterion, criterionRotation, voices);
+  if (!srcIsPos && critIsPos) return selectIntPos(source, criterion, criterionRotation, voices);
+  return selectIntInt(source, criterion, criterionRotation, voices);
+}
+
+// ------------------------------------------------------------
+// Scale
+// ------------------------------------------------------------
+class Scale {
+  constructor(generator, params = {}) {
+    this.params = {
+      root: 0, mode: 0, degree: 0,
+      invert: false, inversionAxis: 0,
+      mirror: false, mirrorAxis: 0,
+      ...params,
+    };
+    if (generator instanceof PositionVector) {
+      this.generator = positionsToIntervals(generator);
+      this.isFromPositions = true;
+    } else {
+      this.generator = generator;
+      this.isFromPositions = false;
+    }
+    this._applyTransformations();
+  }
+
+  _applyTransformations() {
+    let intervals = new IntervalVector(this.generator.getData(), this.generator.getOffset(), this.generator.getMod());
+    intervals.setOffset(this.params.root);
+    intervals = intervals.rotate(this.params.mode);
+    if (this.params.invert) intervals = intervals.inversion(this.params.inversionAxis);
+    if (this.params.mirror) intervals = intervals.singleMirror(this.params.mirrorAxis, true);
+    this.intervals = intervals;
+  }
+
+  toPositions() { return intervalsToPositions(this.intervals); }
+  toIntervals() { return this.intervals; }
+  getGenerator() { return this.generator; }
+  getGeneratorAsPositions() { return intervalsToPositions(this.generator); }
+
+  setParams(newParams) {
+    this.params = { ...this.params, ...newParams };
+    this._applyTransformations();
+  }
+}
+
+// ------------------------------------------------------------
+// Chord
+// ------------------------------------------------------------
+class Chord {
+  constructor(scale, criterion, params = {}) {
+    this.params = {
+      shift: 0, rotationOrRototrans: 0, preVoices: 0, position: 0,
+      invert: false, axis: 0, negativeOrMirror: false, negativeOrMirrorPos: 0,
+      ...params,
+    };
+    this.scaleIsPositions = scale instanceof PositionVector;
+    this.criterionIsPositions = criterion instanceof PositionVector;
+    this.scale = scale;
+    this.criterion = criterion;
+    this._generate();
+  }
+
+  _generate() {
+    const p = this.params;
+    if (this.scaleIsPositions && this.criterionIsPositions) {
+      const offsetDegrees = this.criterion.plusScalar(p.shift);
+      let result = select(this.scale, offsetDegrees, p.rotationOrRototrans, p.preVoices);
+      if (p.invert) result = result.inversion(p.axis, true);
+      if (p.negativeOrMirror) result = result.negative(p.negativeOrMirrorPos);
+      result = result.rotoTranslate(p.position);
+      this.isResultPositions = true;
+      this.resultPositions = result;
+    } else if (this.scaleIsPositions && !this.criterionIsPositions) {
+      const offsetIntervals = new IntervalVector(this.criterion.getData(), p.shift, this.criterion.getMod());
+      let result = select(this.scale, offsetIntervals, p.rotationOrRototrans, p.preVoices);
+      if (p.invert) result = result.inversion(p.axis, true);
+      if (p.negativeOrMirror) result = result.negative(p.negativeOrMirrorPos);
+      result = result.rotoTranslate(p.position);
+      this.isResultPositions = true;
+      this.resultPositions = result;
+    } else if (!this.scaleIsPositions && this.criterionIsPositions) {
+      const offsetDegrees = this.criterion.plusScalar(p.shift);
+      let tempResult = select(this.scale, offsetDegrees, p.rotationOrRototrans, p.preVoices);
+      let result = tempResult.rotoTranslate(p.position);
+      if (p.invert) result = result.inversion(p.axis);
+      if (p.negativeOrMirror) result = result.singleMirror(p.negativeOrMirrorPos, true);
+      this.isResultPositions = false;
+      this.resultIntervals = result;
+    } else {
+      const off = this.criterion.getOffset();
+      const offsetIntervals = new IntervalVector(this.criterion.getData(), p.shift + off, this.criterion.getMod());
+      let tempResult = select(this.scale, offsetIntervals, p.rotationOrRototrans, p.preVoices);
+      let result = tempResult.rotoTranslate(p.position);
+      if (p.invert) result = result.inversion(p.axis);
+      if (p.negativeOrMirror) result = result.singleMirror(p.negativeOrMirrorPos, true);
+      this.isResultPositions = false;
+      this.resultIntervals = result;
+    }
+  }
+
+  toPositions() {
+    return this.isResultPositions ? this.resultPositions : intervalsToPositions(this.resultIntervals);
+  }
+  toIntervals() {
+    return this.isResultPositions ? positionsToIntervals(this.resultPositions) : this.resultIntervals;
+  }
+
+  setParams(newParams) {
+    this.params = { ...this.params, ...newParams };
+    this._generate();
+  }
+}
+
+// Standalone functional chord() helper, mirroring the free functions
+function chord(scale, criterion, opts = {}) {
+  const c = new Chord(scale, criterion, {
+    shift: opts.shift ?? 0,
+    rotationOrRototrans: opts.rotation ?? opts.rototranslation ?? 0,
+    preVoices: opts.preVoices ?? 0,
+    position: opts.position ?? 0,
+    invert: opts.invert ?? false,
+    axis: opts.axis ?? 0,
+    negativeOrMirror: opts.negative ?? opts.mirror ?? false,
+    negativeOrMirrorPos: opts.negativePos ?? opts.mirrorPos ?? 0,
+  });
+  return scale instanceof PositionVector ? c.toPositions() : c.toIntervals();
+}
+
+
+// ===== app logic =====
+
+// ============================================================
+// Audio — simple Web Audio sine synth
+// ============================================================
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// Convert a step in `mod`-edo to Hz, anchored so that step 0 = C0 (16.35 Hz)
+// and one full octave (mod steps) = double the frequency.
+// This matches the helix, where position 0 is the bottom ring.
+// e.g. mod=12: step 60 = middle C (C4); mod=31: step 0 is still C0.
+function noteToFreq(n, mod) {
+  const C0 = 16.3516;
+  return C0 * Math.pow(2, n / mod);
+}
+
+function playTone(freq, startTime, duration, gainPeak = 0.18) {
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gainNode = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  gainNode.gain.setValueAtTime(0, startTime);
+  gainNode.gain.linearRampToValueAtTime(gainPeak, startTime + 0.015);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+  osc.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.05);
+}
+
+function playSequence(notes, mod, { gap = 0.32, dur = 0.38 } = {}) {
+  const ctx = getCtx();
+  const now = ctx.currentTime + 0.05;
+  notes.forEach((n, i) => playTone(noteToFreq(n, mod), now + i * gap, dur));
+}
+
+function playChordTones(notes, mod, { dur = 1.1 } = {}) {
+  const ctx = getCtx();
+  const now = ctx.currentTime + 0.05;
+  notes.forEach(n => playTone(noteToFreq(n, mod), now, dur, 0.13));
+}
+
+// ============================================================
+// HELIX — 3D comprehensive view (Three.js)
+//
+// A pitch helix: pitch-class position (angle) × octave (height).
+// Renders live state from both Scale Lab and Chord Builder at once:
+//   - every scale tone (blue)
+//   - the scale root, i.e. positions[0] (bright amber, larger)
+//   - the criterion/anchor degree that defines the chord (red)
+//   - every chord tone, connected into a closed polygon (amber)
+// No controls of its own — it mirrors whatever the two columns produce.
+// Ported from a standalone prototype; recolored to the Pitchwheel
+// ink/amber/blue/red token system instead of the prototype's own palette.
+// ============================================================
+const Helix = (() => {
+  let scene, camera, renderer, container;
+  let spheres = [];
+  let chordLines = [];
+  let mod = 12;
+  let maxLayer = 1;
+  const ringRadius = 5;
+  const layerHeight = 0.85;
+  const TARGET_OCTAVES = 10; // always show this many full octave rings regardless of modulus
+  let autoRotate = true;
+  let userPaused = false;
+  let rotationSpeed = 1;
+  let lastInteraction = 0;
+  let ready = false;
+
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  // Colors — drawn from the page's own CSS variables so the helix always
+  // matches the active theme rather than hardcoding hex values twice.
+  function cssVar(name, fallback) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+  function hexNum(cssHex) {
+    return parseInt(cssHex.replace('#', ''), 16);
+  }
+  const COLOR = {
+    idle: 0x232730,      // slightly lighter than --ink so unlit spheres read against the card
+    scale: 0x5b8db8,     // --blue
+    chord: 0xd98e48,     // --amber
+    root: 0xf2b66b,      // brighter amber — distinct role from chord tones
+    anchor: 0xb85b5b,    // --red
+    ring: 0xf2efe9,      // --paper, used at low opacity
+  };
+
+  function init() {
+    container = document.getElementById('helix-container');
+    if (!container || typeof THREE === 'undefined') return;
+
+    scene = new THREE.Scene();
+    scene.background = null; // transparent — shows the card background through
+
+    const aspect = container.clientWidth / Math.max(1, container.clientHeight);
+    camera = new THREE.PerspectiveCamera(isMobile ? 65 : 60, aspect, 0.1, 1000);
+
+    renderer = new THREE.WebGLRenderer({
+      antialias: !isMobile,
+      alpha: true,
+      powerPreference: isMobile ? 'low-power' : 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.55);
+    dir.position.set(10, 10, 10);
+    scene.add(dir);
+
+    buildLattice(mod);
+    resetCamera();
+    setupControls();
+    window.addEventListener('resize', onResize);
+    ready = true;
+    animate();
+  }
+
+  // Frames the camera to see the full helix (TARGET_OCTAVES rings) at once.
+  // Distance is computed from vertical FOV so the helix always fits the box.
+  function resetCamera() {
+    const totalHeight = maxLayer * layerHeight;
+    const fovRad = (isMobile ? 65 : 60) * Math.PI / 180;
+    const halfFovV = Math.atan(Math.tan(fovRad / 2) / Math.max(0.5, camera.aspect));
+    const halfH = totalHeight / 2;
+    // Drive distance from the half-height that must fit inside the vertical FOV
+    const minDist = halfH / Math.tan(halfFovV) * 1.15;
+    const dist = Math.max(minDist, ringRadius * 3.5);
+    camera.position.set(dist * 0.62, totalHeight / 2, dist * 0.78);
+    lookAtCenter();
+  }
+
+  function onResize() {
+    if (!container || !camera || !renderer) return;
+    const w = container.clientWidth, h = container.clientHeight;
+    if (w === 0 || h === 0) return;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+
+  // Build (or rebuild) the lattice of idle spheres + ring guides spanning
+  // TARGET_OCTAVES full octaves for the current modulus. Always shows the
+  // same number of octave rings regardless of EDO, so microtonal tunings
+  // look as full as 12-EDO rather than compressing to fewer rings.
+  // Only needs to run again when the modulus changes — scale/chord edits
+  // only recolor existing spheres, they never trigger a rebuild.
+  function buildLattice(newMod) {
+    spheres.forEach(s => scene.remove(s));
+    spheres = [];
+    scene.children
+      .filter(c => c.userData && c.userData.isRing)
+      .forEach(r => scene.remove(r));
+
+    mod = Math.max(1, newMod);
+    maxLayer = TARGET_OCTAVES;
+    const maxNote = mod * TARGET_OCTAVES - 1;
+    const sphereSize = isMobile ? 0.085 : 0.11;
+    const segments = isMobile ? 7 : 12;
+
+    for (let n = 0; n <= maxNote; n++) {
+      const layer = Math.floor(n / mod);
+      const posInLayer = n % mod;
+      const angle = (posInLayer / mod) * Math.PI * 2;
+      const y = layer * layerHeight;
+      const x = ringRadius * Math.cos(angle);
+      const z = ringRadius * Math.sin(angle);
+
+      const geometry = new THREE.SphereGeometry(sphereSize, segments, segments);
+      const material = new THREE.MeshStandardMaterial({
+        color: COLOR.idle, emissive: 0x000000, emissiveIntensity: 0,
+      });
+      const sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(x, y, z);
+      sphere.userData.number = n;
+      scene.add(sphere);
+      spheres.push(sphere);
+    }
+
+    for (let layer = 0; layer <= maxLayer; layer++) {
+      const ringGeo = new THREE.RingGeometry(ringRadius - 0.04, ringRadius + 0.04, 64);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: COLOR.ring, side: THREE.DoubleSide, transparent: true, opacity: 0.07,
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = layer * layerHeight;
+      ring.userData.isRing = true;
+      scene.add(ring);
+    }
+  }
+
+  function clearHighlights() {
+    chordLines.forEach(l => scene.remove(l));
+    chordLines = [];
+    spheres.forEach(s => {
+      s.material.color.setHex(COLOR.idle);
+      s.material.emissive.setHex(0x000000);
+      s.material.emissiveIntensity = 0;
+      s.scale.set(1, 1, 1);
+    });
+  }
+
+  // state: { mod, scalePositions: number[], chordPositions: number[], anchorNote: number|null }
+  // scalePositions/chordPositions/anchorNote are raw absolute pitch numbers
+  // (not pitch-classes) — chord tones in particular are placed at their
+  // *actual* octave on the helix, exactly as produced by the transform
+  // chain, rather than folded back to a single ring.
+  function render(state) {
+    if (!ready) return;
+    const { scalePositions, chordPositions, anchorNote } = state;
+    const newMod = Math.max(1, state.mod || 12);
+
+    if (newMod !== mod) {
+      buildLattice(newMod);
+      // Do not reset the camera here — the user's orbit angle and zoom are
+      // preserved across mod changes, exactly like any other parameter change.
+    }
+
+    clearHighlights();
+
+    const scaleSet = new Set(scalePositions.map(n => ((n % mod) + mod) % mod));
+    const scaleRoot = scalePositions.length ? scalePositions[0] : null;
+    const chordSet = new Set(chordPositions);
+    const chordSpheresForLine = [];
+
+    spheres.forEach(sphere => {
+      const n = sphere.userData.number;
+      let touched = false;
+
+      if (scaleSet.has(((n % mod) + mod) % mod)) {
+        sphere.material.color.setHex(COLOR.scale);
+        sphere.material.emissive.setHex(COLOR.scale);
+        sphere.material.emissiveIntensity = 0.28;
+        touched = true;
+      }
+      if (scaleRoot !== null && n === scaleRoot) {
+        sphere.material.color.setHex(COLOR.root);
+        sphere.material.emissive.setHex(COLOR.root);
+        sphere.material.emissiveIntensity = 0.55;
+        sphere.scale.set(1.5, 1.5, 1.5);
+        touched = true;
+      }
+      if (chordSet.has(n)) {
+        sphere.material.color.setHex(COLOR.chord);
+        sphere.material.emissive.setHex(COLOR.chord);
+        sphere.material.emissiveIntensity = 0.5;
+        sphere.scale.set(1.55, 1.55, 1.55);
+        chordSpheresForLine.push(sphere);
+        touched = true;
+      }
+      if (anchorNote !== null && n === anchorNote) {
+        sphere.material.color.setHex(COLOR.anchor);
+        sphere.material.emissive.setHex(COLOR.anchor);
+        sphere.material.emissiveIntensity = 0.8;
+        sphere.scale.set(1.6, 1.6, 1.6);
+        touched = true;
+      }
+      if (!touched) {
+        sphere.material.emissiveIntensity = 0;
+      }
+    });
+
+    // Connect chord tones into a closed polygon, ordered by angle around the
+    // wheel so the shape reads as "which scale steps this chord spans"
+    // rather than a tangle in selection order.
+    if (chordSpheresForLine.length > 1) {
+      chordSpheresForLine.forEach(s => {
+        const p = s.position.clone(); p.y = 0;
+        s.userData.angle = Math.atan2(p.z, p.x);
+      });
+      chordSpheresForLine.sort((a, b) => a.userData.angle - b.userData.angle);
+      for (let i = 0; i < chordSpheresForLine.length; i++) {
+        const next = (i + 1) % chordSpheresForLine.length;
+        const geom = new THREE.BufferGeometry().setFromPoints([
+          chordSpheresForLine[i].position, chordSpheresForLine[next].position,
+        ]);
+        const mat = new THREE.LineBasicMaterial({ color: COLOR.chord, transparent: true, opacity: 0.55 });
+        const line = new THREE.Line(geom, mat);
+        scene.add(line);
+        chordLines.push(line);
+      }
+    }
+
+    const caption = document.getElementById('helix-caption');
+    if (caption) {
+      const parts = [];
+      parts.push(`<span class="val">${scalePositions.length}</span> scale tones`);
+      if (chordPositions.length) parts.push(`<span class="val">${chordPositions.length}</span> chord tones`);
+      parts.push(`mod <span class="val">${mod}</span>`);
+      caption.innerHTML = parts.join(' · ');
+    }
+  }
+
+  function setupControls() {
+    let dragging = false;
+    let prev = { x: 0, y: 0 };
+    let pinchDist = 0;
+
+    function markInteraction() { lastInteraction = performance.now(); }
+
+    container.addEventListener('mousedown', e => {
+      dragging = true; prev = { x: e.clientX, y: e.clientY }; markInteraction();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      rotate(e.clientX - prev.x, e.clientY - prev.y);
+      prev = { x: e.clientX, y: e.clientY }; markInteraction();
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+
+    container.addEventListener('wheel', e => {
+      e.preventDefault();
+      zoom(e.deltaY); markInteraction();
+    }, { passive: false });
+
+    container.addEventListener('touchstart', e => {
+      e.preventDefault(); markInteraction();
+      if (e.touches.length === 1) {
+        dragging = true; prev = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        dragging = false;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchDist = Math.sqrt(dx * dx + dy * dy);
+      }
+    }, { passive: false });
+
+    container.addEventListener('touchmove', e => {
+      e.preventDefault(); markInteraction();
+      if (e.touches.length === 1 && dragging) {
+        rotate((e.touches[0].clientX - prev.x) * 1.4, (e.touches[0].clientY - prev.y) * 1.4);
+        prev = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        zoom((pinchDist - dist) * 2);
+        pinchDist = dist;
+      }
+    }, { passive: false });
+
+    container.addEventListener('touchend', e => {
+      e.preventDefault(); dragging = false; pinchDist = 0;
+    }, { passive: false });
+  }
+
+  function lookAtCenter() {
+    camera.lookAt(0, (maxLayer * layerHeight) / 2, 0);
+  }
+
+  function rotate(dx, dy) {
+    camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.005);
+    const right = new THREE.Vector3();
+    camera.getWorldDirection(right);
+    right.cross(camera.up).normalize();
+    camera.position.applyAxisAngle(right, dy * 0.005);
+    lookAtCenter();
+  }
+
+  function zoom(delta) {
+    const speed = isMobile ? 0.05 : 0.1;
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    camera.position.addScaledVector(dir, -delta * speed * 0.01);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    // Gentle ambient orbit when idle — pauses for a few seconds after any
+    // drag/zoom so it doesn't fight manual control, and when user paused it.
+    if (!userPaused && autoRotate && performance.now() - lastInteraction > 2500) {
+      camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.0009 * rotationSpeed);
+      lookAtCenter();
+    }
+    if (renderer) renderer.render(scene, camera);
+  }
+
+  return { init, render, setPaused(v) { userPaused = v; }, setRotationSpeed(v) { rotationSpeed = v; } };
+})();
+
+function updateHelix(state) {
+  Helix.render(state);
+}
+
+Helix.init();
+
+// Helix animation controls
+(function () {
+  const playBtn = document.getElementById('helix-play-btn');
+  const speedSlider = document.getElementById('helix-speed');
+  let paused = false;
+
+  playBtn.addEventListener('click', () => {
+    paused = !paused;
+    playBtn.textContent = paused ? '▶' : '⏸';
+    playBtn.title = paused ? 'Resume rotation' : 'Pause rotation';
+    Helix.setPaused(paused);
+  });
+
+  speedSlider.addEventListener('input', () => {
+    Helix.setRotationSpeed(parseFloat(speedSlider.value));
+  });
+})();
+
+// ============================================================
+// Shared helpers
+// ============================================================
+function parseSteps(str) {
+  return str.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !Number.isNaN(n));
+}
+
+// Parse a scale definition which may be:
+//   "pos:0,2,4,5,7,9,11"  → positions, convert to intervals for the given mod
+//   "2,2,1,2,2,2,1"       → already intervals (legacy / custom)
+// Returns an array of interval steps.
+function parseScaleValue(val, mod) {
+  if (val.startsWith('pos:')) {
+    const positions = val.slice(4).split(',').map(s => parseInt(s.trim(), 10)).filter(n => !Number.isNaN(n));
+    return positionsToIntervalSteps(positions, mod);
+  }
+  return parseSteps(val);
+}
+
+// Convert 0-based positions defined in chromatic-12 space to interval steps
+// in `mod`-edo, by mapping each position to its nearest step via ratio.
+//
+// Each position p in 12-edo maps to round(p * mod / 12) in the target tuning,
+// the step that best approximates the same point in the octave.
+// Consecutive positions that round to the same step are deduplicated.
+//
+// e.g. [0,2,4,5,7,9,11] mod 12 -> [2,2,1,2,2,2,1]
+// e.g. [0,2,4,5,7,9,11] mod 24 -> [0,4,8,10,14,18,22] -> [4,4,2,4,4,4,2]
+// e.g. [0,2,4,5,7,9,11] mod 31 -> [0,5,10,13,18,23,28] -> [5,5,3,5,5,5,3]
+// e.g. [0,2,4,5,7,9,11] mod 53 -> [0,9,17,22,31,40,48] -> [9,8,5,9,9,8,5]
+// e.g. [0,2,4,7,9]       mod 31 -> [0,5,10,18,23]       -> [5,5,8,5,8]
+function positionsToIntervalSteps(positions, mod) {
+  if (positions.length === 0) return [];
+  if (positions.length === 1) return [mod];
+  // Map each 12-edo position to the nearest step in the target mod
+  const mapped = positions.map(p => Math.round(p * mod / 12));
+  // Deduplicate consecutive identical steps (keep first of any clash)
+  const unique = [mapped[0]];
+  for (let i = 1; i < mapped.length; i++) {
+    if (mapped[i] !== unique[unique.length - 1]) unique.push(mapped[i]);
+  }
+  // Derive intervals; last interval wraps back to mod
+  const steps = [];
+  for (let i = 0; i < unique.length; i++) {
+    const curr = unique[i];
+    const next = i < unique.length - 1 ? unique[i + 1] : mod + unique[0];
+    steps.push(next - curr);
+  }
+  return steps;
+}
+
+// Given interval steps defined for baseMod, rescale them to newMod via LCM.
+// e.g. steps=[2,2,1,2,2,2,1] baseMod=12 newMod=24 → [4,4,2,4,4,4,2]
+function rescaleStepsToMod(steps, baseMod, newMod) {
+  if (baseMod === newMod || baseMod === 0) return steps;
+  const l = lcm([baseMod, newMod]);
+  const factor = l / baseMod;
+  return steps.map(s => s * factor);
+}
+
+// ============================================================
+// Position-array operations (work on plain number arrays)
+// ============================================================
+
+// Reflect each pitch around axis: 2*axis - v, then sort ascending
+function opInvert(arr, ax = 0) {
+  return arr.map(v => 2 * ax - v).sort((a, b) => a - b);
+}
+
+// Mirror: reflect then shift so the lowest pitch stays the same
+function opMirror(arr, ax = 0) {
+  if (!arr.length) return [];
+  const sorted = [...arr].sort((a, b) => a - b);
+  const firstVal = sorted[0];
+  const inverted = opInvert(sorted, ax);
+  const diff = firstVal - inverted[0];
+  return inverted.map(v => v + diff);
+}
+
+// Find the best equal-temperament fifth generator for a given modulus:
+// the integer g coprime to modulo that is closest to modulo * log2(num/den)
+function fifthGenerator(modulo, num = 3, den = 2) {
+  const ideal = modulo * Math.log2(num / den);
+  let best = 1, bestDist = 1e18;
+  for (let g = 1; g < modulo; ++g) {
+    if (gcd(g, modulo) !== 1) continue;
+    const d = Math.abs(g - ideal);
+    if (d < bestDist) { bestDist = d; best = g; }
+  }
+  return best;
+}
+
+function pmod(x, m) { return ((x % m) + m) % m; }
+
+// Reflect a single pitch through axis in pitch-class space (mod modulo),
+// preserving octave offset
+function negativeHarmonyPitch(pitch, axis, modulo) {
+  const pc = pmod(pitch, modulo);
+  const reflectedPc = pmod(axis - pc, modulo);
+  const octaveBase = pitch - pc;
+  return octaveBase + reflectedPc;
+}
+
+// Negative harmony: reflect all pitches through the root+fifth axis in mod
+// space, sort ascending. The axis is derived from a root pitch class rather
+// than entered directly: axis = root*2 + fifthGenerator(modulo), mod modulo.
+// This generalizes the classic 12-tet "axis = root + 7" rule (the axis sits
+// halfway between root and fifth) to any modulus, scaling the fifth via
+// fifthGenerator instead of hardcoding 7.
+function negativeHarmonyAxis(root, modulo) {
+  return pmod(root * 2 + fifthGenerator(modulo), modulo);
+}
+
+function opNegative(arr, root, modulo) {
+  if (!arr.length) return [];
+  const axis = negativeHarmonyAxis(root, modulo);
+  return arr.map(p => negativeHarmonyPitch(p, axis, modulo)).sort((a, b) => a - b);
+}
+
+function fmtList(arr) {
+  return `[${arr.join(', ')}]`;
+}
+
+// ============================================================
+// TRANSFORM CHAIN — generic draggable, reorderable, toggleable
+// step list. Shared between Scale Lab and Chord Builder so both
+// get the same drag-to-reorder UX (ported from the harmonic-eq
+// transform chain).
+//
+// A "chain" is described by an array of step specs:
+//   { op, name, hint, fields: [{id, type, value, ...}], onChange }
+// initTransformChain() renders them into a #<prefix>chain-wrap container,
+// wires toggle/drag/input events, and calls onUpdate() (passing the
+// live enabled-ops-in-order list) whenever anything changes.
+// ============================================================
+function buildChainStepHTML(prefix, step) {
+  const fieldsHTML = (step.fields || []).map(f => {
+    if (f.type === 'checkbox') {
+      return `<label class="inline-check">
+        <input type="checkbox" id="${prefix}${f.id}" ${f.checked ? 'checked' : ''}>${f.label}
+      </label>`;
+    }
+    return `<input type="number" id="${prefix}${f.id}" value="${f.value}" ${f.step !== undefined ? `step="${f.step}"` : ''} title="${f.title || ''}">`;
+  }).join('\n      ');
+  return `
+    <div class="chain-step off" id="${prefix}card-${step.op}" data-op="${step.op}">
+      <span class="drag-handle" title="Drag to reorder. Step order affects the result.">⠿</span>
+      <button class="op-toggle off" data-op="${step.op}" title="Turns this step on or off.">off</button>
+      <span class="step-name" title="${step.hint || ''}">${step.name}</span>
+      ${fieldsHTML}
+    </div>`;
+}
+
+// steps: array of step specs (see above). stepOrderRef: a mutable array
+// (e.g. a property on a state object) holding op names in current order —
+// initTransformChain reorders it in place when the user drags. onUpdate is
+// called after any toggle/drag/field change.
+function initTransformChain(prefix, wrapId, steps, stepOrderRef, onUpdate) {
+  const wrap = document.getElementById(wrapId);
+  wrap.innerHTML = steps.map(s => buildChainStepHTML(prefix, s)).join('');
+
+  const enabled = {};
+  steps.forEach(s => { enabled[s.op] = false; });
+
+  wrap.querySelectorAll('.op-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const op = btn.dataset.op;
+      enabled[op] = !enabled[op];
+      const card = btn.closest('.chain-step');
+      btn.textContent = enabled[op] ? 'on' : 'off';
+      btn.className = 'op-toggle ' + (enabled[op] ? 'on' : 'off');
+      card.className = 'chain-step ' + (enabled[op] ? 'on' : 'off');
+      onUpdate();
+    });
+  });
+
+  steps.forEach(s => {
+    (s.fields || []).forEach(f => {
+      const el = document.getElementById(prefix + f.id);
+      if (!el) return;
+      el.addEventListener(f.type === 'checkbox' ? 'change' : 'input', onUpdate);
+    });
+  });
+
+  // Drag reorder (pointer-based, mirrors the harmonic-eq chain UI)
+  let dragSrc = null, dragOver = null;
+  wrap.querySelectorAll('.chain-step').forEach(step => {
+    const h = step.querySelector('.drag-handle');
+    if (!h) return;
+    h.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      dragSrc = step;
+      step.classList.add('is-dragging');
+    });
+    h.addEventListener('pointermove', e => {
+      if (!dragSrc) return;
+      e.preventDefault();
+      wrap.querySelectorAll('.chain-step').forEach(s => s.classList.remove('drag-over'));
+      const others = [...wrap.querySelectorAll('.chain-step:not(.is-dragging)')];
+      dragOver = null;
+      if (others.length) {
+        const firstR = others[0].getBoundingClientRect();
+        const lastR = others[others.length - 1].getBoundingClientRect();
+        if (e.clientY <= firstR.bottom) dragOver = others[0];
+        else if (e.clientY >= lastR.top) dragOver = others[others.length - 1];
+        else dragOver = others.find(s => {
+          const r = s.getBoundingClientRect();
+          return e.clientY >= r.top && e.clientY <= r.bottom;
+        }) || null;
+      }
+      if (dragOver) dragOver.classList.add('drag-over');
+    });
+    function commitDrop() {
+      if (dragSrc && dragOver && dragSrc !== dragOver) {
+        const si = stepOrderRef.indexOf(dragSrc.dataset.op);
+        const ti = stepOrderRef.indexOf(dragOver.dataset.op);
+        if (si !== -1 && ti !== -1) {
+          stepOrderRef.splice(si, 1);
+          stepOrderRef.splice(ti, 0, dragSrc.dataset.op);
+          for (const op of stepOrderRef) {
+            const el = document.getElementById(prefix + 'card-' + op);
+            if (el) wrap.appendChild(el);
+          }
+          onUpdate();
+        }
+      }
+      if (dragSrc) dragSrc.classList.remove('is-dragging');
+      wrap.querySelectorAll('.chain-step').forEach(s => s.classList.remove('drag-over'));
+      dragSrc = null; dragOver = null;
+    }
+    h.addEventListener('pointerup', commitDrop);
+    h.addEventListener('pointercancel', commitDrop);
+  });
+
+  return enabled; // live map of op -> boolean, mutated by the toggle buttons
+}
+
+// ============================================================
+// SCALE FOLDERS — searchable, collapsible scale picker
+// ============================================================
+let selectedScale = { name: SCALE_LIBRARY[0].scales[0][0], positions: SCALE_LIBRARY[0].scales[0][1] };
+
+function buildScaleFolders(onPick) {
+  const container = document.getElementById('scale-folders');
+  container.innerHTML = '';
+  SCALE_LIBRARY.forEach((group, gi) => {
+    const folder = document.createElement('div');
+    folder.className = 'scale-folder';
+    folder.dataset.gi = gi;
+    const hdr = document.createElement('div');
+    hdr.className = 'scale-folder-hdr';
+    hdr.innerHTML = `<span class="folder-arrow">▶</span><span class="folder-name">${group.cat}</span><span class="folder-count">${group.scales.length}</span>`;
+    hdr.addEventListener('click', () => {
+      if (document.getElementById('scale-folders').classList.contains('searching')) return;
+      const isOpen = folder.classList.contains('open');
+      document.querySelectorAll('.scale-folder.open').forEach(f => f.classList.remove('open'));
+      if (!isOpen) folder.classList.add('open');
+    });
+    const body = document.createElement('div');
+    body.className = 'scale-folder-body';
+    group.scales.forEach(([name, positions]) => {
+      const pill = document.createElement('button');
+      pill.className = 'scale-pill' + (name === selectedScale.name ? ' active' : '');
+      pill.textContent = name;
+      pill.dataset.name = name;
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.scale-pill.active').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        selectedScale = { name, positions };
+        onPick(positions);
+      });
+      body.appendChild(pill);
+    });
+    folder.appendChild(hdr);
+    folder.appendChild(body);
+    container.appendChild(folder);
+  });
+}
+
+function initScaleSearch() {
+  const input = document.getElementById('scale-search');
+  const container = document.getElementById('scale-folders');
+  let preSearchOpenStates = null;
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) {
+      container.classList.remove('searching');
+      document.querySelectorAll('.scale-folder').forEach(f => f.classList.remove('search-hidden'));
+      document.querySelectorAll('.scale-pill').forEach(p => p.classList.remove('search-hidden', 'search-match'));
+      if (preSearchOpenStates) {
+        document.querySelectorAll('.scale-folder').forEach(f => {
+          f.classList.toggle('open', !!preSearchOpenStates[f.dataset.gi]);
+        });
+        preSearchOpenStates = null;
+      }
+      return;
+    }
+    if (!preSearchOpenStates) {
+      preSearchOpenStates = {};
+      document.querySelectorAll('.scale-folder').forEach(f => {
+        preSearchOpenStates[f.dataset.gi] = f.classList.contains('open');
+      });
+    }
+    container.classList.add('searching');
+    document.querySelectorAll('.scale-folder').forEach(folder => {
+      const pills = folder.querySelectorAll('.scale-pill');
+      let anyMatch = false;
+      pills.forEach(pill => {
+        const match = pill.dataset.name.toLowerCase().includes(q);
+        pill.classList.toggle('search-hidden', !match);
+        pill.classList.toggle('search-match', match);
+        if (match) anyMatch = true;
+      });
+      folder.classList.toggle('search-hidden', !anyMatch);
+    });
+  });
+}
+
+// ============================================================
+// SCALE LAB
+// ============================================================
+const scaleModInput = document.getElementById('scale-mod');
+const scaleCustomInput = document.getElementById('scale-custom');
+const scaleReadout = document.getElementById('scale-readout');
+
+let lastScalePositions = [0, 2, 4, 5, 7, 9, 11];
+let _lastScaleMod = 12; // track prev mod for LCM rescaling
+
+const scaleChainState = {
+  stepOrder: ['root', 'mode', 'degree', 'invert', 'opmirror', 'negative'],
+};
+
+const SCALE_CHAIN_STEPS = [
+  { op: 'root', name: 'Root', hint: 'Adds an offset to every interval (sets the interval-vector offset).',
+    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Root offset.' }] },
+  { op: 'mode', name: 'Mode', hint: '0 = ionian, 1 = dorian… rotates the interval pattern.',
+    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount.' }] },
+  { op: 'degree', name: 'Degree', hint: 'Shifts the start of the position sequence.',
+    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Degree to start from.' }] },
+  { op: 'invert', name: 'Invert', hint: 'Reverses interval order around an axis index into the interval vector.',
+    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Inversion axis index.' }] },
+  { op: 'opmirror', name: 'Mirror', hint: 'Reflects positions and keeps the lowest pitch fixed. (No axis parameter — the result is the same for every axis, since the re-anchoring step cancels it out.)' },
+  { op: 'negative', name: 'Negative', hint: 'Reflects pitch classes around the axis between the root and the perfect fifth.',
+    fields: [] },
+];
+
+let scaleChainEnabled = null;
+let chordChainEnabled = null;
+
+function currentScaleMod() {
+  return Math.max(1, parseInt(scaleModInput.value, 10) || 12);
+}
+
+// Derive interval steps from the currently selected scale-folder pill or
+// custom input, scaled to `mod`.
+function currentStepsForMod(mod) {
+  const customVal = scaleCustomInput.value.trim();
+  const useCustom = document.activeElement === scaleCustomInput || scaleCustomInput.dataset.dirty === '1';
+  if (useCustom) {
+    const positions = parseSteps(customVal);
+    return positionsToIntervalSteps(positions, mod);
+  }
+  return positionsToIntervalSteps(selectedScale.positions, mod);
+}
+
+function updateScaleLab() {
+  const mod = currentScaleMod();
+  const steps = currentStepsForMod(mod);
+  if (steps.length === 0) {
+    scaleReadout.innerHTML = `<span class="label">no valid steps</span>`;
+    updateHelix({ mod, scalePositions: [], chordPositions: [], anchorNote: null });
+    return;
+  }
+
+  const scale = new Scale(new IntervalVector(steps, 0, mod), {});
+  let posData = scale.toPositions().getData();
+
+  // Run the draggable transform chain, in the user's chosen order.
+  for (const op of scaleChainState.stepOrder) {
+    if (!scaleChainEnabled[op]) continue;
+    switch (op) {
+      case 'mode': {
+        const k = getNum('scale-tx-mode');
+        const iv = positionsToIntervals(new PositionVector(posData, mod));
+        posData = intervalsToPositions(iv.rotate(k)).getData();
+        break;
+      }
+      case 'degree': {
+        const d = getNum('scale-tx-degree');
+        posData = new PositionVector(posData, mod).rotoTranslate(d).getData();
+        break;
+      }
+      case 'root': {
+        // Originally this was an unconditional intervals.setOffset(root) applied
+        // first, before mode/invert/mirror. Now that Root is a draggable, toggleable
+        // step like any other, a hard set would silently undo whatever offset
+        // earlier steps in the chain produced — so this shifts by `r` instead of
+        // replacing the offset outright, keeping the chain composable regardless
+        // of where Root sits in the order.
+        const r = getNum('scale-tx-root');
+        const iv = positionsToIntervals(new PositionVector(posData, mod));
+        iv.setOffset(iv.getOffset() + r);
+        posData = intervalsToPositions(iv).getData();
+        break;
+      }
+      case 'invert': {
+        const ax = getNum('scale-tx-axis');
+        const iv = positionsToIntervals(new PositionVector(posData, mod));
+        posData = intervalsToPositions(iv.inversion(ax)).getData();
+        break;
+      }
+      case 'opmirror': {
+        posData = opMirror(posData, 0);
+        break;
+      }
+      case 'negative': {
+        const root = getNum('scale-tx-root');
+        posData = opNegative(posData, root, mod);
+        break;
+      }
+    }
+  }
+
+  const positions = new PositionVector(posData, mod);
+  const intervals = positionsToIntervals(positions);
+
+  lastScalePositions = posData;
+  _lastScaleMod = mod;
+
+  const negAxisNote = scaleChainEnabled.negative
+    ? ` · axis ${negativeHarmonyAxis(getNum('scale-tx-root'), mod)}`
+    : '';
+
+  scaleReadout.innerHTML = `
+    <span class="label">intervals</span> <span class="val blue">${fmtList(intervals.getData())}</span> <span style="color:var(--paper-dim)">offset ${intervals.getOffset()}</span><br>
+    <span class="label">positions</span> <span class="val">${fmtList(posData)}</span><span style="color:var(--paper-dim)">${negAxisNote}</span>
+  `;
+
+  // Cascade: rebuild degree chips if scale size changed, then update chord builder
+  if (typeof buildDegreeChips === 'function' && chordChainEnabled !== null) {
+    buildDegreeChips();
+    updateChordBuilder(); // this also drives updateHelix() with the chord in view
+  } else {
+    // Chord builder not initialized yet (first paint) — show scale alone.
+    updateHelix({ mod, scalePositions: posData, chordPositions: [], anchorNote: null });
+  }
+}
+
+function getNum(id) {
+  const el = document.getElementById(id);
+  return el ? (parseInt(el.value, 10) || 0) : 0;
+}
+
+scaleChainEnabled = initTransformChain('scale-', 'scale-chain-wrap', SCALE_CHAIN_STEPS, scaleChainState.stepOrder, updateScaleLab);
+
+buildScaleFolders(() => { scaleCustomInput.dataset.dirty = '0'; updateScaleLab(); });
+initScaleSearch();
+
+scaleModInput.addEventListener('input', updateScaleLab);
+scaleCustomInput.addEventListener('input', () => { scaleCustomInput.dataset.dirty = '1'; updateScaleLab(); });
+
+document.getElementById('scale-play').addEventListener('click', () => {
+  const semis = typeof chordOctaveSemis === 'function' ? chordOctaveSemis() : 0;
+  playSequence(transposeByOctave(lastScalePositions, currentScaleMod(), semis), currentScaleMod(), { gap: 0.28, dur: 0.34 });
+});
+document.getElementById('scale-play-chord').addEventListener('click', () => {
+  const semis = typeof chordOctaveSemis === 'function' ? chordOctaveSemis() : 0;
+  playChordTones(transposeByOctave(lastScalePositions, currentScaleMod(), semis), currentScaleMod());
+});
+
+updateScaleLab();
+
+// ============================================================
+// CHORD BUILDER
+// ============================================================
+const degreeChips = document.getElementById('degree-chips'); // kept for compat, hidden
+const criterionTypePosition = document.getElementById('criterion-type-position'); // now a button
+const criterionTypeInterval = document.getElementById('criterion-type-interval'); // now a button
+const criterionPositionMode = document.getElementById('criterion-position-mode'); // hidden stub
+const criterionIntervalMode = document.getElementById('criterion-interval-mode'); // hidden stub
+const criterionIntervalSteps = document.getElementById('criterion-interval-steps');
+const criterionPositionInput = document.getElementById('criterion-position-input');
+const chordShift = document.getElementById('chord-shift');
+const chordShiftVal = document.getElementById('chord-shift-val');
+const chordRotation = document.getElementById('chord-rotation');
+const chordPrevoices = document.getElementById('chord-prevoices');
+const chordReadout = document.getElementById('chord-readout');
+const chordOctave = document.getElementById('chord-octave');
+const chordOctaveVal = document.getElementById('chord-octave-val');
+
+let _criterionMode = 'position'; // 'position' or 'interval'
+let selectedDegrees = new Set([0, 2, 4]); // kept for compat; actually read from criterionPositionInput
+let lastChordResult = [];
+let lastChordResultHeard = [];
+
+const chordChainState = {
+  stepOrder: ['root', 'degree', 'mode', 'invert', 'opmirror', 'negative'],
+};
+
+const CHORD_CHAIN_STEPS = [
+  { op: 'root', name: 'Offset', hint: 'Adds an offset to the chord interval vector (transposes the chord).',
+    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Root offset.' }] },
+  { op: 'degree', name: 'Position', hint: 'Shifts the starting index into the chord (voicing / inversion).',
+    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Position shift.' }] },
+  { op: 'mode', name: 'Mode', hint: 'Rotates the interval pattern of the chord tones.',
+    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount.' }] },
+  { op: 'invert', name: 'Invert', hint: 'Reflects each tone around an axis position, then sorts ascending.',
+    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Inversion axis.' }] },
+  { op: 'opmirror', name: 'Mirror', hint: 'Reflects positions and keeps the lowest pitch fixed.' },
+  { op: 'negative', name: 'Negative', hint: 'Applies opNegative to the scale and foldDegree to the shift before selecting. Root is taken from the Offset step.',
+    fields: [] },
+];
+
+function criterionType() {
+  return _criterionMode;
+}
+
+function syncCriterionModeVisibility() {
+  const isInterval = _criterionMode === 'interval';
+  criterionPositionInput.style.display = isInterval ? 'none' : '';
+  criterionIntervalSteps.style.display = isInterval ? '' : 'none';
+  // Update toggle button states
+  criterionTypePosition.classList.toggle('active', !isInterval);
+  criterionTypeInterval.classList.toggle('active', isInterval);
+}
+
+function buildDegreeChips() {
+  // No-op: chips replaced by text input. selectedDegrees is now read from criterionPositionInput.
+}
+
+function parseDegrees(str) {
+  return str.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !Number.isNaN(n) && n >= 0);
+}
+
+// foldDegree: mirrors a degree back through 0 using modular fold
+function foldDegree(degree, modulo) {
+  const r = degree % modulo;
+  return degree - 2 * r;
+}
+
+function updateChordBuilder() {
+  if (!chordChainEnabled) return;
+  // Use the scale lab's live output directly — same modulus, same positions.
+  const mod = currentScaleMod();
+  const scalePositions = new PositionVector(lastScalePositions, mod);
+  const scaleSize = lastScalePositions.length;
+  if (scaleSize === 0) {
+    updateHelix({ mod, scalePositions: [], chordPositions: [], anchorNote: null });
+    return;
+  }
+
+  let criterion;
+  let criterionLabel;
+
+  let anchorDegree = 0; // 0-indexed scale degree that anchors/defines the chord (criterion root)
+
+  if (criterionType() === 'position') {
+    const degrees = parseDegrees(criterionPositionInput.value).sort((a, b) => a - b);
+    if (degrees.length === 0) {
+      chordReadout.innerHTML = `<span class="label">enter at least one degree</span>`;
+      updateHelix({ mod, scalePositions: lastScalePositions, chordPositions: [], anchorNote: null });
+      return;
+    }
+    criterion = new PositionVector(degrees, scaleSize);
+    criterionLabel = `degrees ${fmtList(degrees)}`;
+    anchorDegree = degrees[0] + (parseInt(chordShift.value, 10) || 0);
+  } else {
+    const intervalSteps = parseSteps(criterionIntervalSteps.value);
+    if (intervalSteps.length === 0) {
+      chordReadout.innerHTML = `<span class="label">enter at least one step</span>`;
+      updateHelix({ mod, scalePositions: lastScalePositions, chordPositions: [], anchorNote: null });
+      return;
+    }
+    criterion = new IntervalVector(intervalSteps, 0, scaleSize);
+    criterionLabel = `steps ${fmtList(intervalSteps)} from degree ${parseInt(chordShift.value, 10) || 0}`;
+    anchorDegree = parseInt(chordShift.value, 10) || 0;
+  }
+
+  const params = {
+    shift: parseInt(chordShift.value, 10) || 0,
+    rotationOrRototrans: parseInt(chordRotation.value, 10) || 0,
+    preVoices: parseInt(chordPrevoices.value, 10) || 0,
+    position: 0,   // position handled in the chain now
+    invert: false,
+    axis: 0,
+    negativeOrMirror: false,
+    negativeOrMirrorPos: 0,
+  };
+
+  // If negative is enabled in the chain, apply it pre-selection:
+  //   1. opNegative on the scale positions
+  //   2. foldDegree on the shift param (the "shift degrees by" offset)
+  //   Then select from the negated scale using the same criterion degrees but folded shift.
+  let effectiveScalePositions = scalePositions;
+  let effectiveParams = params;
+
+  if (chordChainEnabled.negative) {
+    const negRoot = getNum('chord-tx-root');
+
+    // 1. Negate the scale
+    const negatedScaleArr = opNegative(lastScalePositions, negRoot, mod);
+    effectiveScalePositions = new PositionVector(negatedScaleArr, mod);
+
+    // 2. Fold the shift
+    const foldedShift = foldDegree(params.shift, scaleSize);
+    effectiveParams = { ...params, shift: foldedShift };
+  }
+
+  let result;
+  try {
+    const c = new Chord(effectiveScalePositions, criterion, effectiveParams);
+    result = c.toPositions().getData();
+  } catch (e) {
+    chordReadout.innerHTML = `<span class="label" style="color:var(--red)">error: ${e.message}</span>`;
+    return;
+  }
+
+  // Run the draggable post-transform chain (excluding 'negative' which was pre-applied above).
+  for (const op of chordChainState.stepOrder) {
+    if (!chordChainEnabled[op]) continue;
+    switch (op) {
+      case 'mode': {
+        const k = getNum('chord-tx-mode');
+        const iv = positionsToIntervals(new PositionVector(result, mod));
+        result = intervalsToPositions(iv.rotate(k)).getData();
+        break;
+      }
+      case 'degree': {
+        const d = getNum('chord-tx-degree');
+        result = new PositionVector(result, mod).rotoTranslate(d).getData();
+        break;
+      }
+      case 'root': {
+        const r = getNum('chord-tx-root');
+        const iv = positionsToIntervals(new PositionVector(result, mod));
+        iv.setOffset(iv.getOffset() + r);
+        result = intervalsToPositions(iv).getData();
+        break;
+      }
+      case 'invert': {
+        const ax = getNum('chord-tx-axis');
+        result = new PositionVector(result, mod).inversion(ax, true).getData();
+        break;
+      }
+      case 'opmirror': {
+        result = opMirror(result, 0);
+        break;
+      }
+      case 'negative': {
+        // Already applied pre-selection above; skip here.
+        break;
+      }
+    }
+  }
+
+  lastChordResult = result;
+
+  const negAxisNote = chordChainEnabled.negative
+    ? ` · neg axis ${negativeHarmonyAxis(getNum('chord-tx-root'), mod)}`
+    : '';
+
+  chordReadout.innerHTML = `
+    <span class="label">criterion</span> <span class="val blue">${criterionLabel}</span><br>
+    <span class="label">chord</span> <span class="val">${fmtList(result)}</span><span style="color:var(--paper-dim)">${negAxisNote}</span>
+  `;
+
+  // anchorDegree may be negative or exceed scaleSize-1 (shift can push it out of range);
+  // PositionVector.element() handles arbitrary indices by cycling through ranges,
+  // which is exactly the scale-extension behaviour we want for an "anchor note".
+  const anchorNote = new PositionVector(lastScalePositions, mod).element(anchorDegree);
+
+  // Octave is a purely perceptual offset — never folded back into the math result.
+  // Chord tones are shifted for audio and helix placement.
+  // Root and anchor stay at their natural (octave-0) positions so they always
+  // appear on the bottom ring — showing the abstract pitch-class, not a register choice.
+  const octSemis = chordOctaveSemis();
+  lastChordResultHeard = transposeByOctave(result, mod, octSemis);
+
+  updateHelix({ mod, scalePositions: lastScalePositions, chordPositions: lastChordResultHeard, anchorNote });
+}
+
+// Octave control: maps the slider integer to a step offset.
+// One octave = mod steps, so octave +1 always doubles frequency regardless of edo.
+function chordOctaveSemis() {
+  const octaves = parseInt(chordOctave.value, 10) || 0;
+  const mod = currentScaleMod();
+  return Math.round(octaves * mod);
+}
+
+function transposeByOctave(arr, mod, semis) {
+  return arr.map(n => n + semis);
+}
+
+chordChainEnabled = initTransformChain('chord-', 'chord-chain-wrap', CHORD_CHAIN_STEPS, chordChainState.stepOrder, updateChordBuilder);
+
+// Criterion toggle buttons
+criterionTypePosition.addEventListener('click', () => { _criterionMode = 'position'; syncCriterionModeVisibility(); updateChordBuilder(); });
+criterionTypeInterval.addEventListener('click', () => { _criterionMode = 'interval'; syncCriterionModeVisibility(); updateChordBuilder(); });
+criterionPositionInput.addEventListener('input', updateChordBuilder);
+criterionIntervalSteps.addEventListener('input', updateChordBuilder);
+chordShift.addEventListener('input', () => { chordShiftVal.textContent = chordShift.value; updateChordBuilder(); });
+chordRotation.addEventListener('input', updateChordBuilder);
+chordPrevoices.addEventListener('input', updateChordBuilder);
+chordOctave.addEventListener('input', () => {
+  const v = parseInt(chordOctave.value, 10) || 0;
+  chordOctaveVal.textContent = (v >= 0 ? '+' : '') + v;
+  updateChordBuilder();
+});
+
+document.getElementById('chord-play').addEventListener('click', () => playChordTones(lastChordResultHeard, currentScaleMod()));
+document.getElementById('chord-play-arp').addEventListener('click', () => playSequence(lastChordResultHeard, currentScaleMod(), { gap: 0.24, dur: 0.3 }));
+
+
+syncCriterionModeVisibility();
+buildDegreeChips();
+updateChordBuilder();
+
+</script>
+</body>
+</html>
