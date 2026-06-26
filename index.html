@@ -1583,6 +1583,13 @@ const Helix = (() => {
 
   // Frames the camera to see the full helix (TARGET_OCTAVES rings) at once.
   // Distance is computed from vertical FOV so the helix always fits the box.
+  //
+  // The camera sits ABOVE the helix's vertical center and looks down at it —
+  // previously the camera height matched the look-at height exactly, which
+  // means every ring was viewed perfectly edge-on (flattened into a line),
+  // making any two points on the same ring look collinear regardless of
+  // azimuth. Elevating the camera and tilting the view down opens each ring
+  // up into a visible ellipse, so points read as being arranged in a circle.
   function resetCamera() {
     const totalHeight = maxLayer * layerHeight;
     const fovRad = (isMobile ? 65 : 60) * Math.PI / 180;
@@ -1591,7 +1598,15 @@ const Helix = (() => {
     // Drive distance from the half-height that must fit inside the vertical FOV
     const minDist = halfH / Math.tan(halfFovV) * 1.15;
     const dist = Math.max(minDist, ringRadius * 3.5);
-    camera.position.set(dist * 0.62, totalHeight / 2, dist * 0.78);
+    const az = 15 * Math.PI / 180;       // off-grid azimuth (avoids edge-on alignment with common scale sizes)
+    const elevDeg = 22;                  // looking down at the helix, not level with it
+    const elev = elevDeg * Math.PI / 180;
+    const horiz = dist * Math.cos(elev);
+    camera.position.set(
+      horiz * Math.cos(az),
+      totalHeight / 2 + dist * Math.sin(elev),
+      horiz * Math.sin(az)
+    );
     lookAtCenter();
   }
 
