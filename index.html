@@ -94,7 +94,7 @@
     .unified-lab { grid-template-columns: 1fr; }
     .unified-divider { display: none; }
     .unified-col:first-child { padding-right: 0; }
-    .unified-col:last-child  { padding-left: 0; }
+    .unified-col:last-child  { padding-left: 0; margin-top: 32px; }
   }
 
   .card {
@@ -378,6 +378,163 @@
      doesn't work on replaced elements like <input>, and position:absolute
      tooltips get clipped by ancestor overflow:hidden. */
 
+  /* ---------- Scale Analysis panel ---------- */
+  .analysis-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    color: var(--paper-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 0;
+    transition: color 0.15s;
+    width: 100%;
+    text-align: left;
+  }
+  .analysis-toggle:hover { color: var(--amber); }
+  .analysis-toggle .arrow {
+    font-size: 9px;
+    display: inline-block;
+    transition: transform 0.18s;
+    color: var(--paper-dim);
+  }
+  .analysis-toggle.open .arrow { transform: rotate(90deg); color: var(--amber); }
+  .analysis-toggle.open { color: var(--amber); }
+
+  .analysis-body { display: none; margin-top: 16px; }
+  .analysis-body.open { display: block; }
+
+  /* Section headers inside analysis */
+  .asection {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin: 18px 0 8px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .asection:first-child { margin-top: 0; }
+
+  /* Two-column stat grid */
+  .astat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  @media (max-width: 480px) { .astat-grid { grid-template-columns: 1fr; } }
+
+  .astat {
+    background: var(--ink);
+    border: 1px solid var(--ink-line);
+    border-radius: 6px;
+    padding: 9px 11px;
+  }
+  .astat.full { grid-column: 1 / -1; }
+  .astat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    margin-bottom: 5px;
+  }
+  .astat-val {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--amber);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+  .astat-val.blue  { color: var(--blue); }
+  .astat-val.green { color: #6dbf8a; }
+  .astat-val.dim   { color: var(--paper-dim); }
+  .astat-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--paper-dim);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  /* inline sub-label inside a stat */
+  .astat-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--paper-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 7px;
+    margin-bottom: 2px;
+  }
+
+  /* Badge row for boolean flags */
+  .abadge-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .abadge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 12px;
+    border: 1px solid var(--chrome);
+    color: var(--paper-dim);
+    background: var(--ink-raised);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .abadge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--chrome); flex-shrink: 0; }
+  .abadge.on  { border-color: #6dbf8a; color: #6dbf8a; background: rgba(109,191,138,0.07); }
+  .abadge.on::before { background: #6dbf8a; }
+  .abadge.off { opacity: 0.55; }
+
+  /* Distances / occurrences pill list */
+  .adist-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .adist-pill {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--ink-raised);
+    border: 1px solid var(--ink-line);
+    border-radius: 6px;
+    padding: 4px 10px;
+    display: flex;
+    gap: 4px;
+    align-items: baseline;
+  }
+  .adist-pill .dp-dist { color: var(--amber); }
+  .adist-pill .dp-x    { color: var(--paper-dim); font-size: 10px; }
+  .adist-pill .dp-cnt  { color: var(--paper); }
+
+  /* Spectra table */
+  .spectra-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .spectra-table tr + tr td { border-top: 1px solid var(--ink-line); }
+  .spectra-table td {
+    padding: 5px 8px 5px 0;
+    vertical-align: middle;
+  }
+  .spectra-table td:first-child {
+    color: var(--paper-dim);
+    white-space: nowrap;
+    padding-right: 12px;
+    font-size: 11px;
+    width: 36px;
+  }
+  .spectra-table .st-set  { color: var(--amber); }
+  .spectra-table .st-w    { color: var(--blue); font-size: 10px; margin-left: 6px; }
+  .spectra-table .st-myhill { color: #6dbf8a; font-size: 10px; margin-left: 4px; }
+
+
 
   .gen-tabs {
     display: flex;
@@ -626,6 +783,15 @@
         <div class="row" style="margin-top:12px;">
           <button class="action" id="scale-play" title="Play scale tones one after another, ascending.">▶ Play ascending</button>
           <button class="ghost" id="scale-play-chord" title="Play all scale tones simultaneously.">▶ Play as chord</button>
+        </div>
+      </div>
+
+      <div class="card" id="analysis-card">
+        <button class="analysis-toggle" id="analysis-toggle" title="Show/hide mathematical scale analysis">
+          <span class="arrow">▶</span> Scale Analysis
+        </button>
+        <div class="analysis-body" id="analysis-body">
+          <!-- populated by updateScaleAnalysis() -->
         </div>
       </div>
     </div>
@@ -2402,6 +2568,409 @@ function currentStepsForMod(mod) {
   return positionsToIntervalSteps(selectedScale.positions, mod);
 }
 
+// ============================================================
+// SCALE ANALYSIS — JS ports of the C++ analysis functions
+// ============================================================
+
+/** Sequential differences of a plain array */
+function differences(arr) {
+  if (arr.length < 2) return [];
+  const out = [];
+  for (let i = 1; i < arr.length; i++) out.push(arr[i] - arr[i - 1]);
+  return out;
+}
+
+/** Geodesic (wrap-around) distance between a and b */
+function geodesicDistance(a, b, mod) {
+  let d = ((b - a) % mod + mod) % mod;
+  if (d > mod / 2) d = mod - d;
+  return d;
+}
+
+/** All pairwise geodesic distances */
+function geodesicDistances(posData, mod) {
+  const out = [];
+  for (let i = 0; i < posData.length; i++)
+    for (let j = i + 1; j < posData.length; j++)
+      out.push(geodesicDistance(posData[i], posData[j], mod));
+  return out;
+}
+
+/** Map value → count */
+function calculateOccurrences(arr) {
+  const map = {};
+  for (const v of arr) map[v] = (map[v] || 0) + 1;
+  return map;
+}
+
+/** Winograd-deep: each distance 1..(k-1) appears with a unique count */
+function isWinogradDeep(occurrences, k) {
+  const seen = new Set();
+  for (let i = 1; i < k; i++) {
+    if (!(i in occurrences)) return false;
+    if (seen.has(occurrences[i])) return false;
+    seen.add(occurrences[i]);
+  }
+  return true;
+}
+
+/** Erdős-deep: every occurring distance has a unique count */
+function isErdosDeep(occurrences) {
+  const seen = new Set();
+  for (const cnt of Object.values(occurrences)) {
+    if (seen.has(cnt)) return false;
+    seen.add(cnt);
+  }
+  return true;
+}
+
+/** Euclidean / Björklund string check via interval rotation */
+function isEuclidean(posData, mod) {
+  if (posData.length === 0) return false;
+  const pv = new PositionVector(posData, mod);
+  const iv = positionsToIntervals(pv);
+  const ivals = iv.getData();
+  const n = ivals.length;
+  if (n === 0) return false;
+  const temp = [...ivals];
+  const temp2 = [...ivals];
+  temp[0]++;
+  temp[n - 1]--;
+  for (let i = 0; i < n; i++) {
+    temp.push(temp.shift()); // rotate left
+    if (temp.join(',') === temp2.join(',')) return true;
+  }
+  return false;
+}
+
+/** Regression evenness: sum of absolute deviations from ideal uniform positions */
+function calculateRegressionEvenness(posData, mod) {
+  const k = posData.length;
+  const ideal = mod / k;
+  let sum = 0;
+  for (let i = 0; i < k; i++) sum += Math.abs(posData[i] - i * ideal);
+  return sum;
+}
+
+/** Rhythmic oddity: count of antipodal pairs (exactly mod/2 apart) */
+function calculateRhythmicOddity(posData, mod) {
+  let count = 0;
+  for (let i = 0; i < posData.length; i++)
+    for (let j = i + 1; j < posData.length; j++) {
+      const d = ((posData[j] - posData[i]) % mod + mod) % mod;
+      if (d === mod - d) count++;
+    }
+  return count;
+}
+
+/** Transition complexity: 0/1 flip count in the binary pitch-class string */
+function computeTransitionComplexity(posData, mod) {
+  const bin = new Array(mod).fill(0);
+  for (const p of posData) bin[((p % mod) + mod) % mod] = 1;
+  let c = 0;
+  for (let i = 1; i < mod; i++) if (bin[i] !== bin[i - 1]) c++;
+  return c;
+}
+
+/** Shannon entropy of the binary pitch-class vector (bits) */
+function computeEntropy(posData, mod) {
+  const bin = new Array(mod).fill(0);
+  for (const p of posData) bin[((p % mod) + mod) % mod] = 1;
+  // count frequencies of 0 and 1
+  const freq = {};
+  for (const b of bin) freq[b] = (freq[b] || 0) + 1;
+  let entropy = 0;
+  for (const cnt of Object.values(freq)) {
+    const p = cnt / mod;
+    entropy -= p * Math.log2(p);
+  }
+  return entropy;
+}
+
+/** Longest run of identical bits in the binary pitch-class vector */
+function computeLongestSubsequence(posData, mod) {
+  const bin = new Array(mod).fill(0);
+  for (const p of posData) bin[((p % mod) + mod) % mod] = 1;
+  let longest = 1, cur = 1;
+  for (let i = 1; i < mod; i++) {
+    if (bin[i] === bin[i - 1]) { cur++; if (cur > longest) longest = cur; }
+    else cur = 1;
+  }
+  return longest;
+}
+
+/** Distribution spectra: for each generic interval j, the set of specific intervals */
+function calculateDistributionSpectra(posData, mod) {
+  const n = posData.length;
+  const spectra = Array.from({ length: n - 1 }, () => new Set());
+  for (let i = 0; i < n; i++)
+    for (let j = 1; j < n; j++) {
+      const specific = ((posData[(i + j) % n] - posData[i]) % mod + mod) % mod;
+      spectra[j - 1].add(specific);
+    }
+  return spectra;
+}
+
+/** Width of each spectrum entry: max − min */
+function calculateSpectrumWidths(spectra) {
+  return spectra.map(s => {
+    if (s.size === 0) return 0;
+    const arr = [...s];
+    return Math.max(...arr) - Math.min(...arr);
+  });
+}
+
+/** Spectrum variation = mean width across all generic intervals */
+function calculateSpectrumVariation(widths) {
+  if (widths.length === 0) return 0;
+  return widths.reduce((a, b) => a + b, 0) / widths.length;
+}
+
+/** Rotational symmetry: transpositions that map the scale onto itself */
+function findRotationalSymmetryAxes(posData, mod) {
+  const sorted = [...posData].sort((a, b) => a - b).map(v => ((v % mod) + mod) % mod).sort((a, b) => a - b);
+  const key = sorted.join(',');
+  const axes = [];
+  for (let t = 1; t < mod; t++) {
+    const trans = sorted.map(v => (v + t) % mod).sort((a, b) => a - b).join(',');
+    if (trans === key) axes.push(t);
+  }
+  return axes;
+}
+
+/** Reflective symmetry: axes (including half-integer) where reflecting maps scale onto itself */
+function findReflectiveSymmetryAxes(posData, mod) {
+  const sorted = [...posData].map(v => ((v % mod) + mod) % mod).sort((a, b) => a - b);
+  const sortedSet = new Set(sorted);
+  const axes = [];
+  for (let ad = 0; ad < 2 * mod; ad++) {
+    const axis = ad / 2;
+    let ok = true;
+    for (const note of sorted) {
+      const reflected = ((Math.round(2 * axis - note) % mod) + mod) % mod;
+      if (!sortedSet.has(reflected)) { ok = false; break; }
+    }
+    if (ok) axes.push(axis);
+  }
+  return axes;
+}
+
+/** Palindrome = has a reflective axis at 0 */
+function isPalindromeScale(posData, mod) {
+  return findReflectiveSymmetryAxes(posData, mod).some(a => a === 0);
+}
+
+/** Chiral = mirror image cannot be superimposed by any transposition */
+function isChiral(posData, mod) {
+  const sorted = [...posData].map(v => ((v % mod) + mod) % mod).sort((a, b) => a - b);
+  const key = sorted.join(',');
+  const mirrored = sorted.map(v => (mod - v) % mod).sort((a, b) => a - b);
+  if (mirrored.join(',') === key) return false;
+  for (let t = 0; t < mod; t++) {
+    const trans = mirrored.map(v => (v + t) % mod).sort((a, b) => a - b).join(',');
+    if (trans === key) return false;
+  }
+  return true;
+}
+
+/** Balanced = centre of mass lies at the origin of the pitch-class circle */
+function isBalanced(posData, mod) {
+  let x = 0, y = 0;
+  for (const p of posData) {
+    const a = (((p % mod) + mod) % mod / mod) * 2 * Math.PI;
+    x += Math.cos(a); y += Math.sin(a);
+  }
+  return Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6;
+}
+
+/** Aksak classification based on modulus */
+function isPrimeNum(n) {
+  if (n < 2) return false;
+  for (let i = 2; i <= Math.sqrt(n); i++) if (n % i === 0) return false;
+  return true;
+}
+function classifyAksak(mod) {
+  if (isPrimeNum(mod)) return 'Authentic aksak';
+  if (mod % 2 !== 0) return 'Quasi-aksak';
+  return 'Pseudo-aksak';
+}
+
+/** Generator: find m such that {i*m mod n | i=0..k-1} = scale, or null */
+function findGenerator(posData, mod) {
+  const sorted = [...posData].map(v => ((v % mod) + mod) % mod).sort((a, b) => a - b);
+  const key = sorted.join(',');
+  const k = sorted.length;
+  for (let m = 1; m < mod; m++) {
+    const gen = Array.from({ length: k }, (_, i) => (i * m) % mod).sort((a, b) => a - b).join(',');
+    if (gen === key) return m;
+  }
+  return null;
+}
+
+// ---- render ----
+
+function astat(label, valHTML, hint, full) {
+  return `<div class="astat${full ? ' full' : ''}">
+    <div class="astat-label">${label}</div>
+    <div class="astat-val">${valHTML}</div>
+    ${hint ? `<div class="astat-hint">${hint}</div>` : ''}
+  </div>`;
+}
+
+function badge(label, on, title) {
+  return `<span class="abadge ${on ? 'on' : 'off'}" title="${title || label}">${label}</span>`;
+}
+
+function updateScaleAnalysis(posData, mod) {
+  const body = document.getElementById('analysis-body');
+  if (!body) return;
+  if (!posData || posData.length < 2) {
+    body.innerHTML = `<div class="astat full"><div class="astat-label">Note</div><div class="astat-val dim">Need ≥ 2 positions for analysis.</div></div>`;
+    return;
+  }
+
+  const k = posData.length;
+
+  // Normalise to pitch classes for all calculations
+  const pcs = posData.map(v => ((v % mod) + mod) % mod);
+
+  // --- compute ---
+  const distances  = geodesicDistances(pcs, mod);
+  const occ        = calculateOccurrences(distances);
+  const winDeep    = isWinogradDeep(occ, k);
+  const erdDeep    = isErdosDeep(occ);
+  const eucl       = isEuclidean(pcs, mod);
+  const evenness   = calculateRegressionEvenness(posData, mod);
+  const oddity     = calculateRhythmicOddity(pcs, mod);
+  const entropy    = computeEntropy(pcs, mod);
+  const txc        = computeTransitionComplexity(pcs, mod);
+  const lseq       = computeLongestSubsequence(pcs, mod);
+  const spectra    = calculateDistributionSpectra(pcs, mod);
+  const widths     = calculateSpectrumWidths(spectra);
+  const variation  = calculateSpectrumVariation(widths);
+  const rotAxes    = findRotationalSymmetryAxes(pcs, mod);
+  const refAxes    = findReflectiveSymmetryAxes(pcs, mod);
+  const palindrome = isPalindromeScale(pcs, mod);
+  const chiral     = isChiral(pcs, mod);
+  const balanced   = isBalanced(pcs, mod);
+  const aksak      = classifyAksak(mod);
+  const gen        = findGenerator(pcs, mod);
+
+  const fmtAxes = arr => arr.length
+    ? arr.map(a => a % 1 ? a.toFixed(1) : String(a)).join(', ')
+    : '—';
+
+  // Geodesic distance pills
+  const distPillsHTML = Object.entries(occ)
+    .sort((a, b) => +a[0] - +b[0])
+    .map(([d, c]) =>
+      `<span class="adist-pill"><span class="dp-dist">${d}</span><span class="dp-x">×</span><span class="dp-cnt">${c}</span></span>`
+    ).join('');
+
+  // Spectra table
+  // Myhill property: every generic interval has exactly 2 specific sizes (width 1).
+  // Strictly proper: every generic interval has exactly 1 specific size (width 0).
+  const spectraRows = spectra.map((s, i) => {
+    const vals = [...s].sort((a, b) => a - b).join(', ');
+    const w = widths[i];
+    const mark = w === 0
+      ? `<span class="st-myhill">strict</span>`
+      : w === 1
+        ? `<span class="st-myhill" style="color:var(--blue)">Myhill</span>`
+        : '';
+    return `<tr>
+      <td>&lt;${i + 1}&gt;</td>
+      <td><span class="st-set">{${vals}}</span><span class="st-w">w=${w}</span>${mark}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `
+    <div class="asection">Properties</div>
+    <div class="abadge-row">
+      ${badge('Euclidean', eucl,
+        'Notes are distributed as evenly as possible across mod steps (Björklund/Euclidean rhythm)')}
+      ${badge('Winograd-deep', winDeep,
+        'Every distance 1…k−1 appears, each a different number of times')}
+      ${badge('Erdős-deep', erdDeep,
+        'No two distinct distances appear the same number of times')}
+      ${badge('Palindrome', palindrome,
+        'The interval sequence reads identically forwards and backwards')}
+      ${badge('Balanced', balanced,
+        'The pitch classes sum to zero as unit-circle vectors (equal pull in all directions)')}
+      ${badge('Chiral', chiral,
+        'The scale and its mirror image are not related by any transposition')}
+    </div>
+
+    <div class="asection">Distances</div>
+    <div class="astat-grid">
+      ${astat('Geodesic distances',
+        `<div class="adist-row">${distPillsHTML || '<span class="astat-val dim">—</span>'}</div>`,
+        'All pairwise shortest distances on the pitch-class circle, shown as distance × count')}
+      ${astat('Regression evenness', `${evenness.toFixed(3)}`,
+        'Sum of |position − ideal position| where ideal = equally spaced. 0 = maximally even.')}
+      ${astat('Rhythmic oddity', `${oddity}`,
+        'Number of note pairs exactly mod/2 steps apart (diametrically opposite). 0 = no antipodal pairs.')}
+    </div>
+
+    <div class="asection">Binary string</div>
+    <div class="astat-grid">
+      ${astat('Shannon entropy',
+        `${entropy.toFixed(4)} <span style="font-size:11px;color:var(--paper-dim)">bits</span>`,
+        'Entropy of the length-mod binary string (1 = note present, 0 = absent). Max 1 bit when k = mod/2.')}
+      ${astat('Transition complexity', `${txc}`,
+        '0↔1 transitions in the binary string. Equals 2k for a scale with no adjacent notes; lower means clustering.')}
+      ${astat('Longest run', `${lseq}`,
+        'Longest unbroken block of identical bits (0s or 1s).')}
+    </div>
+
+    <div class="asection">Symmetry</div>
+    <div class="astat-grid">
+      ${astat('Rotational axes',
+        rotAxes.length ? rotAxes.join(', ') : '<span class="dim">—</span>',
+        'Transpositions t (1 ≤ t < mod) under which the scale maps onto itself')}
+      ${astat('Reflective axes',
+        `<span class="astat-val blue">${refAxes.length ? fmtAxes(refAxes) : '<span class="dim">—</span>'}</span>`,
+        'Axes of mirror symmetry on the pitch-class circle. Half-integer axes fall between steps.')}
+    </div>
+
+    <div class="asection">Generation</div>
+    <div class="astat-grid">
+      ${astat('Generator',
+        gen !== null
+          ? `m = <span style="color:var(--amber)">${gen}</span>`
+          : `<span class="dim">—</span>`,
+        gen !== null
+          ? `{0, ${gen}, ${2*gen%mod}, …} mod ${mod} — all k notes are multiples of ${gen}`
+          : 'No integer m produces this scale as {i·m mod ' + mod + '}')}
+      ${astat('Aksak (mod)',
+        aksak,
+        'Aksak rhythms have an odd period. Prime = authentic aksak; odd composite = quasi-aksak; even = pseudo-aksak (not true aksak).')}
+    </div>
+
+    <div class="asection">Distribution spectra</div>
+    <div class="astat-hint" style="margin-bottom:8px">
+      Row &lt;j&gt; lists the specific interval sizes that span exactly j scale steps. w = max−min.
+      w=0: strictly proper (one size per generic interval). w=1: Myhill property.
+    </div>
+    <div class="astat full" style="padding-top:0">
+      <div class="astat-label" style="margin-bottom:4px">
+        Variation = ${variation.toFixed(4)} <span style="font-weight:normal;text-transform:none;letter-spacing:0">(mean width)</span>
+      </div>
+      <table class="spectra-table">
+        <tbody>${spectraRows}</tbody>
+      </table>
+    </div>
+  `;
+
+  body.innerHTML = html;
+}
+
+// Wire the toggle button
+document.getElementById('analysis-toggle').addEventListener('click', function () {
+  this.classList.toggle('open');
+  document.getElementById('analysis-body').classList.toggle('open');
+});
+
 function updateScaleLab() {
   const mod = currentScaleMod();
   const steps = currentStepsForMod(mod);
@@ -2465,6 +3034,37 @@ function updateScaleLab() {
 
   lastScalePositions = posData;
   _lastScaleMod = mod;
+
+  // Analysis uses a version of the scale that ignores root, degree, and invert
+  // transforms — those just transpose or rotate without changing interval content.
+  // Mode, mirror, and negative do change the interval structure, so they're kept.
+  let analysisPosData = scale.toPositions().getData();
+  for (const op of scaleChainState.stepOrder) {
+    if (!scaleChainEnabled[op]) continue;
+    switch (op) {
+      case 'mode': {
+        const k = getNum('scale-tx-mode');
+        const iv = positionsToIntervals(new PositionVector(analysisPosData, mod));
+        analysisPosData = intervalsToPositions(iv.rotate(k)).getData();
+        break;
+      }
+      case 'opmirror': {
+        analysisPosData = opMirror(analysisPosData, 0);
+        break;
+      }
+      case 'negative': {
+        const root = getNum('scale-tx-root');
+        analysisPosData = opNegative(analysisPosData, root, mod);
+        break;
+      }
+      // root, degree, invert intentionally omitted
+    }
+  }
+  // Normalise: shift so the lowest pitch class is 0
+  const minPc = Math.min(...analysisPosData.map(v => ((v % mod) + mod) % mod));
+  analysisPosData = analysisPosData.map(v => (((v % mod) + mod) % mod - minPc + mod) % mod).sort((a, b) => a - b);
+
+  updateScaleAnalysis(analysisPosData, mod);
 
   const negAxisNote = scaleChainEnabled.negative
     ? ` · axis ${negativeHarmonyAxis(getNum('scale-tx-root'), mod)}`
