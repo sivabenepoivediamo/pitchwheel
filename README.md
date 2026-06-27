@@ -1,6 +1,6 @@
 # pitchwheel
 
-A single-file browser tool for exploring the relationship between scales and chords in equal temperament. No build step, no dependencies beyond Three.js (loaded from CDN). Open `scalechord.html` directly.
+A single-file browser tool for exploring the relationship between scales and chords in equal temperament. No build step, no dependencies beyond Three.js (loaded from CDN). Open `index.html` directly.
 
 ---
 
@@ -100,7 +100,7 @@ Same drag-reorder/toggle mechanism as the scale chain. Six operations:
 | **Mode** | Rotates the interval pattern of the chord tones. |
 | **Invert** | Reflects each tone around an axis position, then sorts ascending. axis = 0 gives classic chord inversion. |
 | **Mirror** | Reflects positions and re-anchors so the lowest pitch stays fixed. |
-| **Negative** | Negative harmony applied to chord selection: negates the scale before selecting, and folds the shift degree. Reflection axis is taken from the Offset step's root value. |
+| **Negative** | Negative harmony applied to chord selection: negates the scale before selecting, and folds the shift degree. Reflection axis is taken from the Scale transform chain's Root value. |
 
 Position is on by default. The others are off.
 
