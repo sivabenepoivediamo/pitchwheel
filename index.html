@@ -1843,16 +1843,18 @@ const Helix = (() => {
       }
     });
 
-    // Connect chord tones into a closed polygon, ordered by angle around the
-    // wheel so the shape reads as "which scale steps this chord spans"
-    // rather than a tangle in selection order.
+    // Connect chord tones from lowest to highest number, then close the loop
+    // only if the first and last dots sit on the same octave ring.
     if (chordSpheresForLine.length > 1) {
-      chordSpheresForLine.forEach(s => {
-        const p = s.position.clone(); p.y = 0;
-        s.userData.angle = Math.atan2(p.z, p.x);
-      });
-      chordSpheresForLine.sort((a, b) => a.userData.angle - b.userData.angle);
-      for (let i = 0; i < chordSpheresForLine.length; i++) {
+      chordSpheresForLine.sort((a, b) => a.userData.number - b.userData.number);
+      const first = chordSpheresForLine[0];
+      const last  = chordSpheresForLine[chordSpheresForLine.length - 1];
+      // Octave is measured relative to the lowest note so the closing criterion
+      // is unaffected by the octave slider shifting all notes by the same offset.
+      const base = first.userData.number;
+      const sameRing = Math.floor((last.userData.number - base) / mod) === 0;
+      const count = sameRing ? chordSpheresForLine.length : chordSpheresForLine.length - 1;
+      for (let i = 0; i < count; i++) {
         const next = (i + 1) % chordSpheresForLine.length;
         const geom = new THREE.BufferGeometry().setFromPoints([
           chordSpheresForLine[i].position, chordSpheresForLine[next].position,
@@ -2855,10 +2857,28 @@ function updateChordBuilder() {
     <span class="label">chord</span> <span class="val">${fmtList(result)}</span><span style="color:var(--paper-dim)">${negAxisNote}</span>
   `;
 
+  // When negative harmony is active, the helix should reflect the transformed state:
+  //   - scale dots show the negated scale (effectiveScalePositions)
+  //   - anchor is looked up on the negated scale at the folded degree
+  // Without negative, everything uses the original scale as before.
+  const helixScalePositions = chordChainEnabled.negative
+    ? effectiveScalePositions.getData()
+    : lastScalePositions;
+
   // anchorDegree may be negative or exceed scaleSize-1 (shift can push it out of range);
   // PositionVector.element() handles arbitrary indices by cycling through ranges,
   // which is exactly the scale-extension behaviour we want for an "anchor note".
-  const anchorNote = new PositionVector(lastScalePositions, mod).element(anchorDegree);
+  // When negative is active, the anchor degree must mirror the shift the same way
+  // the chord selection does: fold just the shift component, then re-add degrees[0]
+  // (for position criterion) or use foldedShift alone (for interval criterion).
+  // foldDegree is only applied to the shift, not to the full anchorDegree, because
+  // degrees[0] is a selector index that doesn't change under negation.
+  const effectiveAnchorDegree = chordChainEnabled.negative
+    ? foldDegree(params.shift, scaleSize) + (criterionType() === 'position'
+        ? (parseDegrees(criterionPositionInput.value).sort((a, b) => a - b)[0] ?? 0)
+        : 0)
+    : anchorDegree;
+  const anchorNote = ((new PositionVector(helixScalePositions, mod).element(effectiveAnchorDegree)) % mod + mod) % mod;
 
   // Octave is a purely perceptual offset — never folded back into the math result.
   // Chord tones are shifted for audio and helix placement.
@@ -2867,7 +2887,7 @@ function updateChordBuilder() {
   const octSemis = chordOctaveSemis();
   lastChordResultHeard = transposeByOctave(result, mod, octSemis);
 
-  updateHelix({ mod, scalePositions: lastScalePositions, chordPositions: lastChordResultHeard, anchorNote });
+  updateHelix({ mod, scalePositions: helixScalePositions, chordPositions: lastChordResultHeard, anchorNote });
 }
 
 // Octave control: maps the slider integer to a step offset.
