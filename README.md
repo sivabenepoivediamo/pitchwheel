@@ -1,6 +1,6 @@
 # pitchwheel
 
-A single-file browser tool for exploring the relationship between scales and chords in equal temperament. No build step, no dependencies beyond Three.js (loaded from CDN). Open `index.html` directly.
+A single-file browser tool for exploring the relationship between scales and chords in equal temperament. No build step, no dependencies beyond Three.js (loaded from CDN). Open `scalechord.html` directly.
 
 ---
 
@@ -21,6 +21,8 @@ Everything updates live. Changes to the scale immediately propagate to the chord
 The **Mod** field (top of the Scale column) sets the number of equal divisions per octave. Default is 12 (standard equal temperament). Valid range is 1–96.
 
 Scales in the database are stored as chromatic-12 positions and remapped to the active mod via ratio rounding (`round(p × mod / 12)`). Positions that collide after rounding are deduplicated, so some scales will lose notes at low mod values.
+
+Generator output and manually entered positions in the Positions field are treated as native mod-space values and are not remapped — `0,3,7,10` with mod 24 means steps 0, 3, 7, 10 of 24-EDO, not a chromatic-12 remapping.
 
 When the generator was the last thing to set the scale, changing Mod re-runs the generator automatically. When the scale was set via the picker or the custom input, Mod changes leave the scale alone and just reinterpret it in the new tuning.
 
