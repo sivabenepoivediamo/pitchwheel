@@ -2036,6 +2036,25 @@ function positionsToIntervalSteps(positions, mod) {
   return steps;
 }
 
+// Convert positions that are already in native mod space (e.g. from the
+// generator) directly to interval steps, with no 12-edo remapping.
+// Consecutive duplicates are deduplicated; the last interval wraps to mod.
+function nativePositionsToIntervalSteps(positions, mod) {
+  if (positions.length === 0) return [];
+  if (positions.length === 1) return [mod];
+  const unique = [positions[0]];
+  for (let i = 1; i < positions.length; i++) {
+    if (positions[i] !== unique[unique.length - 1]) unique.push(positions[i]);
+  }
+  const steps = [];
+  for (let i = 0; i < unique.length; i++) {
+    const curr = unique[i];
+    const next = i < unique.length - 1 ? unique[i + 1] : mod + unique[0];
+    steps.push(next - curr);
+  }
+  return steps;
+}
+
 // Given interval steps defined for baseMod, rescale them to newMod via LCM.
 // e.g. steps=[2,2,1,2,2,2,1] baseMod=12 newMod=24 → [4,4,2,4,4,4,2]
 function rescaleStepsToMod(steps, baseMod, newMod) {
@@ -2368,12 +2387,15 @@ function currentScaleMod() {
 
 // Derive interval steps from the currently selected scale-folder pill or
 // custom input, scaled to `mod`.
+// Positions from the picker are stored in 12-edo space and remapped via ratio.
+// Positions from the generator or custom input are already in native mod space
+// and must not be remapped — use nativePositionsToIntervalSteps for those.
 function currentStepsForMod(mod) {
   const customVal = scaleCustomInput.value.trim();
   const useCustom = document.activeElement === scaleCustomInput || scaleCustomInput.dataset.dirty === '1';
   if (useCustom) {
     const positions = parseSteps(customVal);
-    return positionsToIntervalSteps(positions, mod);
+    return nativePositionsToIntervalSteps(positions, mod);
   }
   return positionsToIntervalSteps(selectedScale.positions, mod);
 }
