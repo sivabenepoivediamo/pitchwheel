@@ -2764,7 +2764,7 @@ function updateChordBuilder() {
   let effectiveParams = params;
 
   if (chordChainEnabled.negative) {
-    const negRoot = getNum('chord-tx-root');
+    const negRoot = getNum('scale-tx-root');
 
     // 1. Negate the scale
     const negatedScaleArr = opNegative(lastScalePositions, negRoot, mod);
@@ -2825,7 +2825,7 @@ function updateChordBuilder() {
   lastChordResult = result;
 
   const negAxisNote = chordChainEnabled.negative
-    ? ` · neg axis ${negativeHarmonyAxis(getNum('chord-tx-root'), mod)}`
+    ? ` · neg axis ${negativeHarmonyAxis(getNum('scale-tx-root'), mod)}`
     : '';
 
   chordReadout.innerHTML = `
