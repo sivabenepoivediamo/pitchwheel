@@ -372,6 +372,57 @@
   }
   ::selection { background: var(--amber-dim); }
 
+  /* ---------- Tooltips ---------- */
+  /* Handled by JS tooltip system — works on <input> elements and inside
+     overflow:hidden containers (e.g. .helix-card). The CSS ::after approach
+     doesn't work on replaced elements like <input>, and position:absolute
+     tooltips get clipped by ancestor overflow:hidden. */
+
+
+  .gen-tabs {
+    display: flex;
+    background: var(--ink);
+    border: 1px solid var(--chrome);
+    border-radius: 6px;
+    padding: 2px;
+    margin-bottom: 12px;
+  }
+  .gen-tab {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    background: transparent;
+    border: none;
+    color: var(--paper-dim);
+    padding: 5px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .gen-tab.active {
+    background: var(--amber-dim);
+    color: var(--amber);
+  }
+  .gen-tab:not(.active):hover { color: var(--paper); }
+  .gen-panel { display: none; }
+  .gen-panel.active { display: block; }
+  .gen-readout {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--paper-dim);
+    background: var(--ink);
+    border: 1px solid var(--ink-line);
+    border-radius: 6px;
+    padding: 7px 10px;
+    margin-bottom: 10px;
+    word-break: break-word;
+    min-height: 28px;
+  }
+  .gen-readout .val { color: var(--amber); }
+
   /* ---------- Helix (3D comprehensive view) ---------- */
   .helix-section {
     margin-bottom: 20px;
@@ -473,15 +524,15 @@
     <div class="helix-card">
       <div class="helix-head">
         <div class="helix-legend">
-          <span><span class="helix-swatch root"></span>root</span>
-          <span><span class="helix-swatch scale"></span>scale</span>
-          <span><span class="helix-swatch anchor"></span>degree</span>
-          <span><span class="helix-swatch chord"></span>chord</span>
+          <span title="The first position of the scale (position 0). Always anchored at the bottom of the helix."><span class="helix-swatch root"></span>root</span>
+          <span title="All positions in the current scale."><span class="helix-swatch scale"></span>scale</span>
+          <span title="The scale degree the chord is built from (set by the Degree slider in the Criterion card)."><span class="helix-swatch anchor"></span>degree</span>
+          <span title="The notes of the current chord, selected from the scale by the criterion."><span class="helix-swatch chord"></span>chord</span>
         </div>
         <div class="helix-controls">
-          <button class="ghost" id="helix-play-btn" title="Pause rotation">⏸</button>
+          <button class="ghost" id="helix-play-btn" title="Pause or resume the auto-rotation.">⏸</button>
           <span class="helix-speed-label">speed</span>
-          <input type="range" id="helix-speed" min="0.1" max="5" step="0.1" value="1" title="Rotation speed">
+          <input type="range" id="helix-speed" min="0.1" max="5" step="0.1" value="1" title="Controls how fast the helix auto-rotates. Drag the helix to look around manually.">
         </div>
       </div>
       <div id="helix-container"></div>
@@ -501,17 +552,68 @@
       <div class="card">
         <h3>Scale Database</h3>
         <div class="field">
-          <label for="scale-mod">Mod</label>
-          <input type="number" id="scale-mod" value="12" min="1" max="96">
+          <label for="scale-mod" title="The number of equal divisions in an octave. 12 = standard equal temperament. Changing this remaps the scale intervals proportionally.">Mod</label>
+          <input type="number" id="scale-mod" value="12" min="1" max="96" title="The number of equal divisions in an octave. 12 = standard equal temperament. Changing this remaps the scale intervals proportionally.">
         </div>
         <div class="scale-search-wrap">
-          <input class="scale-search" id="scale-search" type="text" placeholder="Search scales…">
+          <input class="scale-search" id="scale-search" type="text" placeholder="Search scales…" title="Filter the scale list by name.">
         </div>
         <div class="scale-folders" id="scale-folders"></div>
         <div class="field" id="custom-steps-field" style="margin-top:12px;">
-          <label for="scale-custom">Positions</label>
-          <input type="text" id="scale-custom" value="0,2,4,5,7,9,11">
+          <label for="scale-custom" title="Enter scale positions directly as a comma-separated list, e.g. 0,2,4,5,7,9,11. Overrides the database selection. The generator also writes here.">Positions</label>
+          <input type="text" id="scale-custom" value="0,2,4,5,7,9,11" title="Enter scale positions directly as a comma-separated list, e.g. 0,2,4,5,7,9,11. Overrides the database selection. The generator also writes here.">
         </div>
+      </div>
+
+      <div class="card">
+        <h3>Scale Generator</h3>
+        <div class="gen-tabs">
+          <button class="gen-tab active" data-gen="euclidean" title="Björklund / Euclidean algorithm. Distributes events as evenly as possible across the steps.">Euclidean</button>
+          <button class="gen-tab" data-gen="cloughdouthett" title="Clough-Douthett maximally even sets. Positions notes at floor(i·mod/events) for i=0…events−1.">Clough-Douthett</button>
+          <button class="gen-tab" data-gen="deep" title="Deep scale generator. Places events at (i·multiplicity) mod steps. Multiplicity must be coprime to steps for all events to be distinct.">Deep</button>
+        </div>
+
+        <!-- Euclidean panel -->
+        <div class="gen-panel active" id="gen-panel-euclidean">
+          <div class="field">
+            <label for="gen-eu-events" title="Number of notes to place. Must not exceed Mod.">Events</label>
+            <input type="number" id="gen-eu-events" value="7" min="1" max="96" title="Number of notes to place. Must not exceed Mod.">
+          </div>
+          <div class="field" style="margin-bottom:8px;">
+            <label for="gen-eu-offset" title="Rotates the starting position of the pattern within the octave.">Offset</label>
+            <input type="number" id="gen-eu-offset" value="0" title="Rotates the starting position of the pattern within the octave.">
+          </div>
+        </div>
+
+        <!-- Clough-Douthett panel -->
+        <div class="gen-panel" id="gen-panel-cloughdouthett">
+          <div class="field">
+            <label for="gen-cd-events" title="Number of notes to place. Must not exceed Mod.">Events</label>
+            <input type="number" id="gen-cd-events" value="7" min="1" max="96" title="Number of notes to place. Must not exceed Mod.">
+          </div>
+          <div class="field" style="margin-bottom:8px;">
+            <label for="gen-cd-offset" title="Shifts all positions by this amount (mod Mod).">Offset</label>
+            <input type="number" id="gen-cd-offset" value="0" title="Shifts all positions by this amount (mod Mod).">
+          </div>
+        </div>
+
+        <!-- Deep Rhythm panel -->
+        <div class="gen-panel" id="gen-panel-deep">
+          <div class="field">
+            <label for="gen-dr-events" title="Number of notes to place.">Events</label>
+            <input type="number" id="gen-dr-events" value="7" min="1" max="96" title="Number of notes to place.">
+          </div>
+          <div class="field">
+            <label for="gen-dr-mult" title="Step size between notes: position i = (i·multiplicity + offset) mod steps. Use a value coprime to Mod to get Events distinct notes.">Multiplicity</label>
+            <input type="number" id="gen-dr-mult" value="7" min="1" title="Step size between notes: position i = (i·multiplicity + offset) mod steps. Use a value coprime to Mod to get Events distinct notes.">
+          </div>
+          <div class="field" style="margin-bottom:8px;">
+            <label for="gen-dr-offset" title="Shifts all positions by this amount (mod Mod).">Offset</label>
+            <input type="number" id="gen-dr-offset" value="0" title="Shifts all positions by this amount (mod Mod).">
+          </div>
+        </div>
+
+        <div class="gen-readout" id="gen-readout">—</div>
       </div>
 
       <div class="card">
@@ -522,8 +624,8 @@
       <div class="card">
         <div class="readout" id="scale-readout">—</div>
         <div class="row" style="margin-top:12px;">
-          <button class="action" id="scale-play">▶ Play ascending</button>
-          <button class="ghost" id="scale-play-chord">▶ Play as chord</button>
+          <button class="action" id="scale-play" title="Play scale tones one after another, ascending.">▶ Play ascending</button>
+          <button class="ghost" id="scale-play-chord" title="Play all scale tones simultaneously.">▶ Play as chord</button>
         </div>
       </div>
     </div>
@@ -537,9 +639,9 @@
 
       <div class="card">
         <div class="field" style="margin-bottom:0;">
-          <label for="chord-octave">Octave</label>
+          <label for="chord-octave" title="Transposes chord playback up by this many octaves. Does not affect position math — only audio and helix placement.">Octave</label>
           <div class="range-row">
-            <input type="range" id="chord-octave" min="0" max="9" value="5">
+            <input type="range" id="chord-octave" min="0" max="9" value="5" title="Transposes chord playback up by this many octaves. Does not affect position math — only audio and helix placement.">
             <span class="range-val" id="chord-octave-val">+5</span>
           </div>
         </div>
@@ -549,12 +651,12 @@
         <h3>Criterion</h3>
         <div class="criterion-row">
           <div class="criterion-toggle" id="criterion-toggle">
-            <button class="ctab active" id="criterion-type-position" data-value="position">pos</button>
-            <button class="ctab" id="criterion-type-interval" data-value="interval">int</button>
+            <button class="ctab active" id="criterion-type-position" data-value="position" title="Select chord tones by scale degree indices, e.g. 0,2,4 picks the 1st, 3rd and 5th degrees.">pos</button>
+            <button class="ctab" id="criterion-type-interval" data-value="interval" title="Select chord tones by step intervals from the anchor degree, e.g. 2,2,3 walks up in scale steps.">int</button>
           </div>
           <div class="field criterion-input-field" style="margin-bottom:0; flex:1; min-width:0;">
-            <input type="text" id="criterion-position-input" value="0,2,4" placeholder="0,2,4" style="width:100%;">
-            <input type="text" id="criterion-interval-steps" value="2,2,3" placeholder="2,2,3" style="width:100%; display:none;">
+            <input type="text" id="criterion-position-input" value="0,2,4" placeholder="0,2,4" style="width:100%;" title="Scale degree indices to include in the chord. 0 is the anchor degree. Comma-separated.">
+            <input type="text" id="criterion-interval-steps" value="2,2,3" placeholder="2,2,3" style="width:100%; display:none;" title="Number of scale steps between successive chord tones, starting from the anchor degree. Comma-separated.">
           </div>
         </div>
 
@@ -567,19 +669,19 @@
         <div id="criterion-interval-mode" style="display:none;"></div>
 
         <div class="field" style="margin-top:10px;">
-          <label for="chord-shift">Degree</label>
+          <label for="chord-shift" title="Shifts which scale degree the criterion is applied from. 0 = root, 1 = second degree, etc. Negative values count from the end.">Degree</label>
           <div class="range-row">
-            <input type="range" id="chord-shift" min="-14" max="14" value="0">
+            <input type="range" id="chord-shift" min="-14" max="14" value="0" title="Shifts which scale degree the criterion is applied from. 0 = root, 1 = second degree, etc. Negative values count from the end.">
             <span class="range-val" id="chord-shift-val">0</span>
           </div>
         </div>
         <div class="field">
-          <label for="chord-rotation">Rotation</label>
-          <input type="number" id="chord-rotation" value="0" style="width:65px;">
+          <label for="chord-rotation" title="Rotates the interval pattern of the selected chord tones before returning them. Equivalent to a cyclic permutation of the voicing.">Rotation</label>
+          <input type="number" id="chord-rotation" value="0" style="width:65px;" title="Rotates the interval pattern of the selected chord tones before returning them. Equivalent to a cyclic permutation of the voicing.">
         </div>
         <div class="field" style="margin-bottom:0;">
-          <label for="chord-prevoices">Voices</label>
-          <input type="number" id="chord-prevoices" value="0" style="width:65px;">
+          <label for="chord-prevoices" title="Number of extra octave doublings added below the chord before the criterion is applied. Extends the chord downward.">Voices</label>
+          <input type="number" id="chord-prevoices" value="0" style="width:65px;" title="Number of extra octave doublings added below the chord before the criterion is applied. Extends the chord downward.">
         </div>
       </div>
 
@@ -591,8 +693,8 @@
       <div class="card">
         <div class="readout" id="chord-readout">—</div>
         <div class="row" style="margin-top:12px;">
-          <button class="action" id="chord-play">▶ Play as chord</button>
-          <button class="ghost" id="chord-play-arp">▶ Play arpeggio</button>
+          <button class="action" id="chord-play" title="Play all chord tones simultaneously.">▶ Play as chord</button>
+          <button class="ghost" id="chord-play-arp" title="Play chord tones one after another, ascending.">▶ Play arpeggio</button>
         </div>
       </div>
     </div>
@@ -1963,7 +2065,10 @@ function opMirror(arr, ax = 0) {
 }
 
 // Find the best equal-temperament fifth generator for a given modulus:
-// the integer g coprime to modulo that is closest to modulo * log2(num/den)
+// the integer g COPRIME to modulo that is closest to modulo * log2(num/den).
+// Coprimality is required here because this value is used as a cyclic
+// generator — iterating it must visit every step before wrapping.
+// NOTE: do NOT use this for negative harmony; see bestFifthStep below.
 function fifthGenerator(modulo, num = 3, den = 2) {
   const ideal = modulo * Math.log2(num / den);
   let best = 1, bestDist = 1e18;
@@ -1973,6 +2078,21 @@ function fifthGenerator(modulo, num = 3, den = 2) {
     if (d < bestDist) { bestDist = d; best = g; }
   }
   return best;
+}
+
+// Best integer approximation of a perfect fifth (3:2) in a given EDO,
+// WITHOUT the coprimality constraint.  Coprimality is only needed when
+// the fifth is used as a cyclic scale generator; for negative harmony we
+// simply need the closest step to the 3:2 frequency ratio.
+//
+// Example of why the distinction matters:
+//   mod 24 — ideal fifth = 14.04 steps
+//   gcd(14, 24) = 2, so fifthGenerator rejects 14 and returns 13 instead.
+//   Using 13 shifts the reflection axis by a quartertone, producing pitches
+//   between the EDO steps.  bestFifthStep correctly returns 14, which makes
+//   mod-24 negative harmony identical to mod-12 (just doubled positions).
+function bestFifthStep(modulo, num = 3, den = 2) {
+  return Math.round(modulo * Math.log2(num / den));
 }
 
 function pmod(x, m) { return ((x % m) + m) % m; }
@@ -1987,13 +2107,15 @@ function negativeHarmonyPitch(pitch, axis, modulo) {
 }
 
 // Negative harmony: reflect all pitches through the root+fifth axis in mod
-// space, sort ascending. The axis is derived from a root pitch class rather
-// than entered directly: axis = root*2 + fifthGenerator(modulo), mod modulo.
-// This generalizes the classic 12-tet "axis = root + 7" rule (the axis sits
-// halfway between root and fifth) to any modulus, scaling the fifth via
-// fifthGenerator instead of hardcoding 7.
+// space, sort ascending.  axis = root*2 + fifth (mod modulo), where "fifth"
+// is the best integer approximation of the 3:2 ratio in this EDO.
+// The reflection pmod(axis - pc, mod) is equivalent to mirroring around
+// the midpoint axis/2 — i.e. halfway between the root and its fifth.
+//
+// Uses bestFifthStep (not fifthGenerator) so the fifth is the nearest EDO
+// step to 3:2, regardless of whether it shares a factor with the modulus.
 function negativeHarmonyAxis(root, modulo) {
-  return pmod(root * 2 + fifthGenerator(modulo), modulo);
+  return pmod(root * 2 + bestFifthStep(modulo), modulo);
 }
 
 function opNegative(arr, root, modulo) {
@@ -2019,6 +2141,7 @@ function fmtList(arr) {
 // live enabled-ops-in-order list) whenever anything changes.
 // ============================================================
 function buildChainStepHTML(prefix, step) {
+  const on = !!step.defaultOn;
   const fieldsHTML = (step.fields || []).map(f => {
     if (f.type === 'checkbox') {
       return `<label class="inline-check">
@@ -2028,9 +2151,9 @@ function buildChainStepHTML(prefix, step) {
     return `<input type="number" id="${prefix}${f.id}" value="${f.value}" ${f.step !== undefined ? `step="${f.step}"` : ''} title="${f.title || ''}">`;
   }).join('\n      ');
   return `
-    <div class="chain-step off" id="${prefix}card-${step.op}" data-op="${step.op}">
+    <div class="chain-step ${on ? 'on' : 'off'}" id="${prefix}card-${step.op}" data-op="${step.op}">
       <span class="drag-handle" title="Drag to reorder. Step order affects the result.">⠿</span>
-      <button class="op-toggle off" data-op="${step.op}" title="Turns this step on or off.">off</button>
+      <button class="op-toggle ${on ? 'on' : 'off'}" data-op="${step.op}" title="Toggle this step on or off.">${on ? 'on' : 'off'}</button>
       <span class="step-name" title="${step.hint || ''}">${step.name}</span>
       ${fieldsHTML}
     </div>`;
@@ -2045,7 +2168,7 @@ function initTransformChain(prefix, wrapId, steps, stepOrderRef, onUpdate) {
   wrap.innerHTML = steps.map(s => buildChainStepHTML(prefix, s)).join('');
 
   const enabled = {};
-  steps.forEach(s => { enabled[s.op] = false; });
+  steps.forEach(s => { enabled[s.op] = !!s.defaultOn; });
 
   wrap.querySelectorAll('.op-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2217,16 +2340,22 @@ const scaleChainState = {
 };
 
 const SCALE_CHAIN_STEPS = [
-  { op: 'root', name: 'Root', hint: 'Adds an offset to every interval (sets the interval-vector offset).',
-    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Root offset.' }] },
-  { op: 'mode', name: 'Mode', hint: '0 = ionian, 1 = dorian… rotates the interval pattern.',
-    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount.' }] },
-  { op: 'degree', name: 'Degree', hint: 'Shifts the start of the position sequence.',
+  { op: 'root', name: 'Root', defaultOn: true,
+    hint: 'Transposes the scale by shifting the interval-vector offset. Value is added to the current offset, so it composes with other steps.',
+    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Semitones to transpose.' }] },
+  { op: 'mode', name: 'Mode', defaultOn: true,
+    hint: 'Rotates the interval pattern of the scale. 0 = Ionian, 1 = Dorian, 2 = Phrygian… Steps can be dragged to reorder.',
+    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Mode index (rotation amount).' }] },
+  { op: 'degree', name: 'Degree', defaultOn: true,
+    hint: 'Shifts the starting index into the position sequence. Changes which note the scale starts on without reordering the intervals.',
     fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Degree to start from.' }] },
-  { op: 'invert', name: 'Invert', hint: 'Reverses interval order around an axis index into the interval vector.',
-    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Inversion axis index.' }] },
-  { op: 'opmirror', name: 'Mirror', hint: 'Reflects positions and keeps the lowest pitch fixed. (No axis parameter — the result is the same for every axis, since the re-anchoring step cancels it out.)' },
-  { op: 'negative', name: 'Negative', hint: 'Reflects pitch classes around the axis between the root and the perfect fifth.',
+  { op: 'invert', name: 'Invert',
+    hint: 'Reverses the interval order around an axis index. Flips the scale shape while keeping the number of notes the same.',
+    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Index in the interval vector to reflect around.' }] },
+  { op: 'opmirror', name: 'Mirror',
+    hint: 'Reflects positions and re-anchors so the lowest pitch stays fixed. No axis parameter — the re-anchoring cancels any axis choice.' },
+  { op: 'negative', name: 'Negative',
+    hint: 'Negative harmony: reflects pitch classes around the axis halfway between root and perfect fifth. Axis = (2·root + fifth) mod mod.',
     fields: [] },
 ];
 
@@ -2337,13 +2466,161 @@ function getNum(id) {
   return el ? (parseInt(el.value, 10) || 0) : 0;
 }
 
+// ============================================================
+// SCALE GENERATORS — JS ports of Euclidean, Clough-Douthett, Deep
+// ============================================================
+
+/** Euclidean: returns interval array */
+function genEuclidean(steps, events) {
+  if (events <= 0 || steps <= 0) return [];
+  function eucl(n, k) {
+    if (k === 0) return [];
+    const { quotient, remainder } = euclideanDivision(n, k);
+    if (remainder === 0) {
+      const out = [];
+      for (let i = 0; i < k; i++) out.push(quotient);
+      return out;
+    }
+    const sub = eucl(k, remainder);
+    const out = [];
+    for (let i = 0; i < remainder; i++) {
+      for (let j = 0; j < sub[i] - 1; j++) out.push(quotient);
+      out.push(quotient + 1);
+    }
+    return out;
+  }
+  return eucl(steps, events);
+}
+
+/** Convert Euclidean intervals + offset → position array (mod steps) */
+function euclideanToPositions(steps, events, offset) {
+  const ivals = genEuclidean(steps, events);
+  if (ivals.length === 0) return [];
+  const positions = [];
+  let pos = ((offset % steps) + steps) % steps;
+  for (const iv of ivals) {
+    positions.push(pos);
+    pos = (pos + iv) % steps;
+  }
+  return positions;
+}
+
+/** Clough-Douthett: returns sorted position array */
+function genCloughDouthett(steps, events, offset) {
+  if (events <= 0 || steps <= 0) return [];
+  const positions = [];
+  for (let i = 0; i < events; i++) {
+    positions.push((Math.floor(i * steps / events) + offset) % steps);
+  }
+  positions.sort((a, b) => a - b);
+  return positions;
+}
+
+/** Deep Rhythm: returns sorted, deduplicated position array */
+function genDeepRhythm(steps, events, multiplicity, offset) {
+  if (events <= 0 || steps <= 0) return [];
+  const raw = [];
+  for (let i = 0; i < events; i++) {
+    raw.push(((i * multiplicity) + offset) % steps);
+  }
+  // Deduplicate and sort (as noted in the C++ docs)
+  const unique = [...new Set(raw)];
+  unique.sort((a, b) => a - b);
+  return unique;
+}
+
+// ============================================================
+// GENERATOR UI
+// ============================================================
+// Tracks what last set the scale: 'generator', 'picker', or 'custom'.
+// Used by the mod-change handler to decide whether to re-run the generator.
+let _scaleLastSetBy = 'picker'; // default matches initial state (scale DB pill active)
+
+let runGenerator; // declared here so it can be called after chain init below
+{
+  let activeGen = 'euclidean';
+
+  // Tab switching
+  document.querySelectorAll('.gen-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.gen-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.gen-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      activeGen = tab.dataset.gen;
+      document.getElementById('gen-panel-' + activeGen).classList.add('active');
+      runGenerator();
+    });
+  });
+
+  function getInt(id, fallback = 0) {
+    const el = document.getElementById(id);
+    if (!el) return fallback;
+    const v = parseInt(el.value, 10);
+    return isNaN(v) ? fallback : v;
+  }
+
+  runGenerator = function() {
+    const readout = document.getElementById('gen-readout');
+    const steps = currentScaleMod();
+    let positions = [];
+    try {
+      if (activeGen === 'euclidean') {
+        const events = getInt('gen-eu-events', 7);
+        const offset = getInt('gen-eu-offset', 0);
+        if (events > steps) throw new Error('events must be ≤ mod');
+        if (events < 1)     throw new Error('events must be ≥ 1');
+        positions = euclideanToPositions(steps, events, offset);
+      } else if (activeGen === 'cloughdouthett') {
+        const events = getInt('gen-cd-events', 7);
+        const offset = getInt('gen-cd-offset', 0);
+        if (events > steps) throw new Error('events must be ≤ mod');
+        if (events < 1)     throw new Error('events must be ≥ 1');
+        positions = genCloughDouthett(steps, events, offset);
+      } else {
+        const events = getInt('gen-dr-events', 7);
+        const mult   = getInt('gen-dr-mult', 7);
+        const offset = getInt('gen-dr-offset', 0);
+        if (events < 1) throw new Error('events must be ≥ 1');
+        positions = genDeepRhythm(steps, events, mult, offset);
+      }
+      readout.innerHTML = `<span class="val">${positions.join(', ')}</span>`;
+    } catch(e) {
+      readout.innerHTML = `<span style="color:var(--red)">${e.message}</span>`;
+      return;
+    }
+    // Push directly into the custom input and update the scale
+    const customInput = document.getElementById('scale-custom');
+    customInput.value = positions.join(',');
+    customInput.dataset.dirty = '1';
+    document.querySelectorAll('.scale-pill.active').forEach(p => p.classList.remove('active'));
+    _scaleLastSetBy = 'generator';
+    updateScaleLab();
+  };
+
+  // Wire all generator inputs to re-run
+  ['gen-eu-events','gen-eu-offset',
+   'gen-cd-events','gen-cd-offset',
+   'gen-dr-events','gen-dr-mult','gen-dr-offset'
+  ].forEach(id => {
+    document.getElementById(id).addEventListener('input', runGenerator);
+  });
+}
+
 scaleChainEnabled = initTransformChain('scale-', 'scale-chain-wrap', SCALE_CHAIN_STEPS, scaleChainState.stepOrder, updateScaleLab);
 
-buildScaleFolders(() => { scaleCustomInput.dataset.dirty = '0'; updateScaleLab(); });
+buildScaleFolders(() => { scaleCustomInput.dataset.dirty = '0'; _scaleLastSetBy = 'picker'; updateScaleLab(); });
 initScaleSearch();
 
-scaleModInput.addEventListener('input', updateScaleLab);
-scaleCustomInput.addEventListener('input', () => { scaleCustomInput.dataset.dirty = '1'; updateScaleLab(); });
+scaleModInput.addEventListener('input', () => {
+  if (_scaleLastSetBy === 'generator') {
+    // Generator was last — re-run it with the new mod so the scale stays live.
+    runGenerator();
+  } else {
+    // Scale was set via the picker or the custom input — leave it alone.
+    updateScaleLab();
+  }
+});
+scaleCustomInput.addEventListener('input', () => { scaleCustomInput.dataset.dirty = '1'; _scaleLastSetBy = 'custom'; updateScaleLab(); });
 
 document.getElementById('scale-play').addEventListener('click', () => {
   const semis = typeof chordOctaveSemis === 'function' ? chordOctaveSemis() : 0;
@@ -2380,20 +2657,26 @@ let lastChordResult = [];
 let lastChordResultHeard = [];
 
 const chordChainState = {
-  stepOrder: ['root', 'degree', 'mode', 'invert', 'opmirror', 'negative'],
+  stepOrder: ['degree', 'root', 'mode', 'invert', 'opmirror', 'negative'],
 };
 
 const CHORD_CHAIN_STEPS = [
-  { op: 'root', name: 'Offset', hint: 'Adds an offset to the chord interval vector (transposes the chord).',
-    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Root offset.' }] },
-  { op: 'degree', name: 'Position', hint: 'Shifts the starting index into the chord (voicing / inversion).',
-    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Position shift.' }] },
-  { op: 'mode', name: 'Mode', hint: 'Rotates the interval pattern of the chord tones.',
+  { op: 'degree', name: 'Position', defaultOn: true,
+    hint: 'Shifts the starting index into the chord tones (voicing / inversion). Changes which chord tone sits at the bottom without reordering intervals.',
+    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Index of the chord tone to start from.' }] },
+  { op: 'root', name: 'Offset',
+    hint: 'Transposes the chord by shifting the interval-vector offset. Value is added to the current offset, so it composes with other steps.',
+    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Semitones to transpose.' }] },
+  { op: 'mode', name: 'Mode',
+    hint: 'Rotates the interval pattern of the chord tones. Equivalent to a cyclic permutation of the voicing intervals.',
     fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount.' }] },
-  { op: 'invert', name: 'Invert', hint: 'Reflects each tone around an axis position, then sorts ascending.',
-    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Inversion axis.' }] },
-  { op: 'opmirror', name: 'Mirror', hint: 'Reflects positions and keeps the lowest pitch fixed.' },
-  { op: 'negative', name: 'Negative', hint: 'Applies opNegative to the scale and foldDegree to the shift before selecting. Root is taken from the Offset step.',
+  { op: 'invert', name: 'Invert',
+    hint: 'Reflects each tone around an axis position, then sorts ascending. Classic chord inversion when axis = 0.',
+    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Position to reflect around.' }] },
+  { op: 'opmirror', name: 'Mirror',
+    hint: 'Reflects positions and re-anchors so the lowest pitch stays fixed.' },
+  { op: 'negative', name: 'Negative',
+    hint: 'Negative harmony: negates the scale and folds the shift degree before selecting. The reflection axis is taken from the Offset step root value.',
     fields: [] },
 ];
 
@@ -2600,6 +2883,111 @@ document.getElementById('chord-play-arp').addEventListener('click', () => playSe
 syncCriterionModeVisibility();
 buildDegreeChips();
 updateChordBuilder();
+
+// ============================================================
+// TOOLTIP — JS-driven replacement for the CSS ::after approach.
+//
+// Why: CSS ::after / ::before pseudo-elements are not rendered on
+// replaced / void elements like <input>, so all number spinners,
+// range sliders, and text fields silently dropped their tooltips.
+// Also, position:absolute tooltips are clipped inside .helix-card
+// (overflow:hidden).  A position:fixed div appended to <body> fixes
+// both problems.
+//
+// Usage: read from [title] attribute.  On first hover the title is
+// moved to [data-tip] to suppress the browser's native tooltip box.
+// ============================================================
+(function () {
+  // Create the shared tooltip element
+  const tip = document.createElement('div');
+  tip.style.cssText = [
+    'position:fixed',
+    'background:#0d0f13',
+    'color:#f2efe9',
+    'font-family:"IBM Plex Mono",monospace',
+    'font-size:11px',
+    'line-height:1.45',
+    'padding:6px 9px',
+    'border-radius:5px',
+    'border:1px solid #2a2e37',
+    'white-space:pre-wrap',
+    'max-width:240px',
+    'width:max-content',
+    'pointer-events:none',
+    'z-index:9999',
+    'display:none',
+    'box-shadow:0 2px 10px rgba(0,0,0,.55)',
+  ].join(';');
+  document.body.appendChild(tip);
+
+  let curX = 0, curY = 0, activeEl = null, leaveCleanup = null;
+
+  function positionTip(x, y) {
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    const margin = 8;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let left = x - w / 2;
+    let top  = y - h - 14;          // default: above cursor
+    if (top < margin) top = y + 18; // flip below if too close to top
+    left = Math.max(margin, Math.min(left, vw - w - margin));
+    top  = Math.max(margin, Math.min(top,  vh - h - margin));
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  function hideTip() {
+    tip.style.display = 'none';
+    activeEl = null;
+  }
+
+  // Track cursor globally so we can position the tooltip immediately on show
+  document.addEventListener('mousemove', function (e) {
+    curX = e.clientX; curY = e.clientY;
+    if (tip.style.display !== 'none') positionTip(curX, curY);
+  });
+
+  // Show tooltip when entering any element that carries title / data-tip
+  document.addEventListener('mouseover', function (e) {
+    // Walk up from the hovered element to find the nearest titled ancestor
+    let el = e.target;
+    while (el && el !== document.body) {
+      const text = el.getAttribute('data-tip') || el.getAttribute('title');
+      if (text) {
+        if (el === activeEl) return; // already showing for this element
+
+        // Detach previous leave-handler if switching targets
+        if (activeEl && leaveCleanup) {
+          activeEl.removeEventListener('mouseleave', leaveCleanup);
+          leaveCleanup = null;
+        }
+
+        // Move title → data-tip once so the native browser tooltip never fires
+        if (el.hasAttribute('title')) {
+          el.setAttribute('data-tip', el.getAttribute('title'));
+          el.removeAttribute('title');
+        }
+
+        activeEl = el;
+        tip.textContent = text;
+        tip.style.display = 'block';
+        positionTip(curX, curY);
+
+        // Hide when the mouse leaves this element
+        leaveCleanup = function () { hideTip(); leaveCleanup = null; };
+        el.addEventListener('mouseleave', leaveCleanup, { once: true });
+        return;
+      }
+      el = el.parentElement;
+    }
+
+    // Moved onto an element with no tooltip — hide
+    if (activeEl && leaveCleanup) {
+      activeEl.removeEventListener('mouseleave', leaveCleanup);
+      leaveCleanup = null;
+    }
+    hideTip();
+  });
+})();
 
 </script>
 </body>
