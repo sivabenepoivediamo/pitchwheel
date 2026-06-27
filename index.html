@@ -732,25 +732,17 @@
 
         <!-- Euclidean panel -->
         <div class="gen-panel active" id="gen-panel-euclidean">
-          <div class="field">
+          <div class="field" style="margin-bottom:8px;">
             <label for="gen-eu-events" title="Number of notes to place. Must not exceed Mod.">Events</label>
             <input type="number" id="gen-eu-events" value="7" min="1" max="96" title="Number of notes to place. Must not exceed Mod.">
-          </div>
-          <div class="field" style="margin-bottom:8px;">
-            <label for="gen-eu-offset" title="Rotates the starting position of the pattern within the octave.">Offset</label>
-            <input type="number" id="gen-eu-offset" value="0" title="Rotates the starting position of the pattern within the octave.">
           </div>
         </div>
 
         <!-- Clough-Douthett panel -->
         <div class="gen-panel" id="gen-panel-cloughdouthett">
-          <div class="field">
+          <div class="field" style="margin-bottom:8px;">
             <label for="gen-cd-events" title="Number of notes to place. Must not exceed Mod.">Events</label>
             <input type="number" id="gen-cd-events" value="7" min="1" max="96" title="Number of notes to place. Must not exceed Mod.">
-          </div>
-          <div class="field" style="margin-bottom:8px;">
-            <label for="gen-cd-offset" title="Shifts all positions by this amount (mod Mod).">Offset</label>
-            <input type="number" id="gen-cd-offset" value="0" title="Shifts all positions by this amount (mod Mod).">
           </div>
         </div>
 
@@ -760,13 +752,9 @@
             <label for="gen-dr-events" title="Number of notes to place.">Events</label>
             <input type="number" id="gen-dr-events" value="7" min="1" max="96" title="Number of notes to place.">
           </div>
-          <div class="field">
-            <label for="gen-dr-mult" title="Step size between notes: position i = (i·multiplicity + offset) mod steps. Use a value coprime to Mod to get Events distinct notes.">Multiplicity</label>
-            <input type="number" id="gen-dr-mult" value="7" min="1" title="Step size between notes: position i = (i·multiplicity + offset) mod steps. Use a value coprime to Mod to get Events distinct notes.">
-          </div>
           <div class="field" style="margin-bottom:8px;">
-            <label for="gen-dr-offset" title="Shifts all positions by this amount (mod Mod).">Offset</label>
-            <input type="number" id="gen-dr-offset" value="0" title="Shifts all positions by this amount (mod Mod).">
+            <label for="gen-dr-mult" title="Step size between notes: position i = (i·multiplicity) mod steps. Use a value coprime to Mod to get Events distinct notes.">Multiplicity</label>
+            <input type="number" id="gen-dr-mult" value="7" min="1" title="Step size between notes: position i = (i·multiplicity) mod steps. Use a value coprime to Mod to get Events distinct notes.">
           </div>
         </div>
 
@@ -3190,22 +3178,19 @@ let runGenerator; // declared here so it can be called after chain init below
     try {
       if (activeGen === 'euclidean') {
         const events = getInt('gen-eu-events', 7);
-        const offset = getInt('gen-eu-offset', 0);
         if (events > steps) throw new Error('events must be ≤ mod');
         if (events < 1)     throw new Error('events must be ≥ 1');
-        positions = euclideanToPositions(steps, events, offset);
+        positions = euclideanToPositions(steps, events, 0);
       } else if (activeGen === 'cloughdouthett') {
         const events = getInt('gen-cd-events', 7);
-        const offset = getInt('gen-cd-offset', 0);
         if (events > steps) throw new Error('events must be ≤ mod');
         if (events < 1)     throw new Error('events must be ≥ 1');
-        positions = genCloughDouthett(steps, events, offset);
+        positions = genCloughDouthett(steps, events, 0);
       } else {
         const events = getInt('gen-dr-events', 7);
         const mult   = getInt('gen-dr-mult', 7);
-        const offset = getInt('gen-dr-offset', 0);
         if (events < 1) throw new Error('events must be ≥ 1');
-        positions = genDeepRhythm(steps, events, mult, offset);
+        positions = genDeepRhythm(steps, events, mult, 0);
       }
       readout.innerHTML = `<span class="val">${positions.join(', ')}</span>`;
     } catch(e) {
@@ -3222,9 +3207,9 @@ let runGenerator; // declared here so it can be called after chain init below
   };
 
   // Wire all generator inputs to re-run
-  ['gen-eu-events','gen-eu-offset',
-   'gen-cd-events','gen-cd-offset',
-   'gen-dr-events','gen-dr-mult','gen-dr-offset'
+  ['gen-eu-events',
+   'gen-cd-events',
+   'gen-dr-events','gen-dr-mult'
   ].forEach(id => {
     document.getElementById(id).addEventListener('input', runGenerator);
   });
