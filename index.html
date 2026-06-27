@@ -1785,6 +1785,27 @@ const Helix = (() => {
   let lastInteraction = 0;
   let ready = false;
 
+  // ---- Orbit-camera state ----------------------------------------------
+  // The camera's orientation is tracked as an accumulated quaternion rather
+  // than a pair of stacked angles (azimuth/elevation). Stacked angles need
+  // a fixed "up" reference and a clamp at ±90° to avoid gimbal lock — which
+  // is exactly what stops you from ever turning the view upside down.
+  // A quaternion has no such reference: each drag composes a small rotation
+  // expressed in the camera's *own* current axes onto whatever orientation
+  // it already has, so "up" rotates along with the camera instead of being
+  // pinned to world-Y. That means there's no pole to get stuck at — you can
+  // drag straight through the top, keep going, and land upside down, then
+  // keep going further back to right-side up, all with the same smooth
+  // motion in every direction.
+  const orbit = {
+    target: null,
+    distance: 10,
+    quaternion: null,        // THREE.Quaternion — current camera orientation
+  };
+  // The camera sits at target + quaternion·(0,0,distance) and looks toward
+  // target, i.e. orientation is defined relative to "parked behind target
+  // looking down -Z", the same convention THREE.Camera.lookAt produces.
+
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   // Colors — drawn from the page's own CSS variables so the helix always
@@ -1853,17 +1874,45 @@ const Helix = (() => {
     const halfH = totalHeight / 2;
     // Drive distance from the half-height that must fit inside the vertical FOV
     const minDist = halfH / Math.tan(halfFovV) * 1.15;
-    const dist = Math.max(minDist, ringRadius * 3.5);
-    const az = 15 * Math.PI / 180;       // off-grid azimuth (avoids edge-on alignment with common scale sizes)
-    const elevDeg = 22;                  // looking down at the helix, not level with it
-    const elev = elevDeg * Math.PI / 180;
-    const horiz = dist * Math.cos(elev);
-    camera.position.set(
-      horiz * Math.cos(az),
-      totalHeight / 2 + dist * Math.sin(elev),
-      horiz * Math.sin(az)
+    orbit.target = new THREE.Vector3(0, totalHeight / 2, 0);
+    orbit.distance = Math.max(minDist, ringRadius * 3.5);
+
+    // Build the starting orientation using the exact same spherical
+    // framing the helix always opened with (15° azimuth, 22° elevation,
+    // looking down at the helix), then convert that one-time position
+    // into a quaternion via a lookAt matrix. This is the only place
+    // azimuth/elevation/lookAt are used — once built, the quaternion is
+    // what gets incrementally rotated by drags from here on, never
+    // recomputed from angles again.
+    const az = 15 * Math.PI / 180;   // off-grid azimuth (avoids edge-on alignment with common scale sizes)
+    const elev = 22 * Math.PI / 180; // looking down at the helix, not level with it
+    const horiz = orbit.distance * Math.cos(elev);
+    const startPos = new THREE.Vector3(
+      orbit.target.x + horiz * Math.cos(az),
+      orbit.target.y + orbit.distance * Math.sin(elev),
+      orbit.target.z + horiz * Math.sin(az)
     );
-    lookAtCenter();
+    const m = new THREE.Matrix4().lookAt(startPos, orbit.target, new THREE.Vector3(0, 1, 0));
+    orbit.quaternion = new THREE.Quaternion().setFromRotationMatrix(m);
+    applyOrbit();
+  }
+
+  // Derives camera position/orientation from the orbit's quaternion and
+  // distance. This is the single place that turns (quaternion, distance,
+  // target) into a concrete camera transform, so drag/zoom/auto-rotate/
+  // resize all stay perfectly consistent with each other.
+  //
+  // The camera is placed at target + R·(0,0,distance), i.e. "back away
+  // from the target along the orientation's local +Z", and its up vector
+  // is R·(0,1,0) — the orientation's own local up, NOT world-Y. That last
+  // part is what lets the helix go upside down: once a drag has rotated
+  // past vertical, local up points toward world-down, and the view flips
+  // naturally instead of the renderer fighting to keep "up" pinned to +Y.
+  function applyOrbit() {
+    const offset = new THREE.Vector3(0, 0, orbit.distance).applyQuaternion(orbit.quaternion);
+    camera.position.copy(orbit.target).add(offset);
+    camera.up.set(0, 1, 0).applyQuaternion(orbit.quaternion);
+    camera.quaternion.copy(orbit.quaternion);
   }
 
   function onResize() {
@@ -2083,24 +2132,33 @@ const Helix = (() => {
     }, { passive: false });
   }
 
-  function lookAtCenter() {
-    camera.lookAt(0, (maxLayer * layerHeight) / 2, 0);
-  }
-
+  // Horizontal drag = yaw around world Y, composed onto the current
+  // orientation (not replacing it) — this spins the view left/right the
+  // same way regardless of how far it's already tilted.
+  // Vertical drag = pitch around the camera's OWN current local-X axis,
+  // also composed on, not a separate clamped angle. Composing rotations
+  // this way has no pole: dragging straight up through what used to be
+  // "top dead center" just keeps composing the same small pitch step,
+  // carrying the view smoothly past vertical and out the other side
+  // upside down, then back around again on the way back — exactly the
+  // continuous motion a trackball gives you, with no flip/snap anywhere.
   function rotate(dx, dy) {
-    camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.005);
-    const right = new THREE.Vector3();
-    camera.getWorldDirection(right);
-    right.cross(camera.up).normalize();
-    camera.position.applyAxisAngle(right, dy * 0.005);
-    lookAtCenter();
+    const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.005);
+    const localX = new THREE.Vector3(1, 0, 0).applyQuaternion(orbit.quaternion);
+    const pitch = new THREE.Quaternion().setFromAxisAngle(localX, dy * 0.005);
+    // Order matters: apply pitch first (in the frame before this drag),
+    // then yaw, so a pure horizontal drag never picks up unwanted roll.
+    orbit.quaternion = yaw.multiply(pitch).multiply(orbit.quaternion);
+    orbit.quaternion.normalize(); // guards against float drift accumulating over many frames
+    applyOrbit();
   }
 
   function zoom(delta) {
     const speed = isMobile ? 0.05 : 0.1;
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-    camera.position.addScaledVector(dir, -delta * speed * 0.01);
+    const minDistance = ringRadius * 0.6;
+    const maxDistance = ringRadius * 12;
+    orbit.distance = Math.max(minDistance, Math.min(maxDistance, orbit.distance + delta * speed * 0.01));
+    applyOrbit();
   }
 
   function animate() {
@@ -2108,8 +2166,9 @@ const Helix = (() => {
     // Gentle ambient orbit when idle — pauses for a few seconds after any
     // drag/zoom so it doesn't fight manual control, and when user paused it.
     if (!userPaused && autoRotate && performance.now() - lastInteraction > 2500) {
-      camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.0009 * rotationSpeed);
-      lookAtCenter();
+      const spin = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -0.0009 * rotationSpeed);
+      orbit.quaternion = spin.multiply(orbit.quaternion);
+      applyOrbit();
     }
     if (renderer) renderer.render(scene, camera);
   }
