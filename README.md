@@ -1,6 +1,6 @@
 # pitchwheel
 
-A single-file browser tool for exploring the relationship between scales and chords in equal temperament. No build step, no dependencies beyond Three.js (loaded from CDN). Open `scalechord.html` directly.
+A single-file browser tool for exploring the relationship between scales and chords in equal temperament. No build step, no dependencies beyond Three.js (loaded from CDN). Open `index.html` directly.
 
 ---
 
