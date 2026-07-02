@@ -666,6 +666,243 @@
   @media (max-width: 640px) {
     #helix-container { height: 380px; }
   }
+
+  /* ---------- Input engine panel ---------- */
+  .input-section { margin-bottom: 20px; }
+  .input-card {
+    background: var(--ink-raised);
+    border: 1px solid var(--ink-line);
+    border-radius: 10px;
+    padding: 16px 18px 18px;
+  }
+  .input-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .mode-toggle {
+    display: flex;
+    background: var(--ink);
+    border: 1px solid var(--chrome);
+    border-radius: 7px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .mode-tab {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.03em;
+    background: transparent;
+    border: none;
+    color: var(--paper-dim);
+    padding: 7px 13px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+  }
+  .mode-tab.active { background: var(--amber-dim); color: var(--amber); }
+  .mode-tab:not(.active):hover { color: var(--paper); }
+  .mode-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+    line-height: 1.5;
+    flex: 1 1 220px;
+    min-width: 200px;
+  }
+  .mode-desc .val { color: var(--amber); }
+
+  .input-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .input-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .input-control-group .igroup-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+  }
+  .midi-status-row, .pckeys-status-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--chrome); flex-shrink: 0;
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  .status-dot.live { background: #6dbf8a; box-shadow: 0 0 6px #6dbf8a; }
+  .status-dot.warn { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  select#midi-device-select {
+    width: 220px;
+  }
+  .pckeys-info {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--paper-dim);
+    cursor: help;
+  }
+  .toggle-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--paper-dim);
+    cursor: pointer;
+    user-select: none;
+    background: var(--ink);
+    border: 1px solid var(--chrome);
+    border-radius: 16px;
+    padding: 6px 12px 6px 8px;
+    transition: border-color 0.12s, color 0.12s;
+  }
+  .toggle-pill input[type="checkbox"] { margin: 0; }
+  .toggle-pill.on { border-color: var(--amber); color: var(--amber); }
+
+  /* ---------- Keyboard visualizer ---------- */
+  .kbviz-wrap {
+    margin-top: 4px;
+    border-top: 1px solid var(--ink-line);
+    padding-top: 14px;
+  }
+  .kbviz-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--paper-dim);
+    margin-bottom: 10px;
+  }
+  .kbviz-legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .kbviz-swatch { width: 9px; height: 9px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+  .kbviz-swatch.scale { background: var(--blue); }
+  .kbviz-swatch.chord { background: var(--amber); }
+  .kbviz-swatch.input { background: var(--red); box-shadow: 0 0 5px var(--red); }
+
+  .kbviz-scroll {
+    overflow: visible;
+    padding-bottom: 6px;
+  }
+  .kbviz-keys {
+    position: relative;
+    width: 100%;
+    height: clamp(100px, 17vw, 150px);
+    display: flex;
+    align-items: flex-start;
+  }
+  .kbviz-white {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    background: #e8e4da;
+    border: 1px solid #15171c;
+    border-radius: 0 0 3px 3px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.08s ease;
+  }
+  .kbviz-white:hover { background: #f7f4ee; }
+  .kbviz-white.scale-tone { background: #b9d3e6; }
+  .kbviz-white.chord-tone { background: var(--amber); }
+  .kbviz-white.held { box-shadow: inset 0 0 0 3px var(--red); }
+  .kbviz-white .kbviz-label {
+    position: absolute;
+    bottom: 6px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: clamp(7.5px, 1.6vw, 10.5px);
+    color: #6a665c;
+    pointer-events: none;
+  }
+  .kbviz-black {
+    position: absolute;
+    top: 0;
+    height: 60%;
+    background: #1b1d22;
+    border: 1px solid #000;
+    border-radius: 0 0 2px 2px;
+    z-index: 2;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.08s ease;
+  }
+  .kbviz-black:hover { background: #2c2f37; }
+  .kbviz-black.scale-tone { background: #3f6f95; }
+  .kbviz-black.chord-tone { background: var(--amber); }
+  .kbviz-black.held { box-shadow: inset 0 0 0 3px var(--red); }
+
+  .kbviz-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .kbviz-nav-btn {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--ink);
+    color: var(--paper-dim);
+    border: 1px solid var(--chrome);
+    border-radius: 5px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s;
+    user-select: none;
+  }
+  .kbviz-nav-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .kbviz-nav-btn:active { background: var(--ink-raised); }
+  .kbviz-nav-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
+  .kbviz-nav-label .val { color: var(--amber); }
+
+  .kbviz-readout {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--paper-dim);
+  }
+  .kbviz-readout .val { color: var(--amber); }
+  .kbviz-readout .val.blue { color: var(--blue); }
+
+  .kbviz-unsupported {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--paper-dim);
+    background: var(--ink);
+    border: 1px dashed var(--chrome);
+    border-radius: 8px;
+    padding: 16px;
+    line-height: 1.6;
+  }
+  .kbviz-unsupported .val { color: var(--amber); }
 </style>
 </head>
 <body>
@@ -681,20 +918,71 @@
     <div class="helix-card">
       <div class="helix-head">
         <div class="helix-legend">
-          <span title="The first position of the scale (position 0). Always anchored at the bottom of the helix."><span class="helix-swatch root"></span>root</span>
-          <span title="All positions in the current scale."><span class="helix-swatch scale"></span>scale</span>
-          <span title="The scale degree the chord is built from (set by the Degree slider in the Criterion card)."><span class="helix-swatch anchor"></span>degree</span>
-          <span title="The notes of the current chord, selected from the scale by the criterion."><span class="helix-swatch chord"></span>chord</span>
+          <span title="Scale's starting note"><span class="helix-swatch root"></span>root</span>
+          <span title="Every note in the scale"><span class="helix-swatch scale"></span>scale</span>
+          <span title="Degree the chord is built from"><span class="helix-swatch anchor"></span>degree</span>
+          <span title="Notes of the current chord"><span class="helix-swatch chord"></span>chord</span>
         </div>
         <div class="helix-controls">
-          <button class="ghost" id="helix-play-btn" title="Pause or resume the auto-rotation.">⏸</button>
+          <button class="ghost" id="helix-play-btn" title="Pause / resume rotation">⏸</button>
           <span class="helix-speed-label">speed</span>
-          <input type="range" id="helix-speed" min="0.1" max="5" step="0.1" value="1" title="Controls how fast the helix auto-rotates. Drag the helix to look around manually.">
+          <input type="range" id="helix-speed" min="0.1" max="5" step="0.1" value="1" title="Rotation speed. Drag the helix to look around.">
         </div>
       </div>
       <div id="helix-container"></div>
       <div class="helix-foot">
         <div class="helix-caption" id="helix-caption">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ INPUT — MIDI/keyboard engine + visualizer ============ -->
+  <div class="input-section">
+    <div class="input-card">
+      <div class="input-head">
+        <div class="mode-toggle" id="input-mode-toggle">
+          <button class="mode-tab active" data-mode="root" title="Play a note to set the scale root">Root</button>
+          <button class="mode-tab" data-mode="degree" title="Play a note to pick the chord's degree (degrees are mapped to white keys)">Degree</button>
+          <button class="mode-tab" data-mode="direct" title="Pass-through">Direct</button>
+        </div>
+        <div class="mode-desc" id="input-mode-desc">
+          Sets the <span class="val">scale root</span> and plays the chord.
+        </div>
+      </div>
+
+      <div class="input-controls-row">
+        <div class="input-control-group">
+          <span class="igroup-label">MIDI</span>
+          <div class="midi-status-row">
+            <span class="status-dot" id="midi-status-dot" title="MIDI connection status"></span>
+            <select id="midi-device-select" title="Choose a MIDI input">
+              <option value="">Requesting MIDI access…</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-control-group">
+          <span class="igroup-label">PC Keyboard</span>
+          <label class="toggle-pill on" id="pckeys-toggle-label" title="Play notes with Z–M and Q–U (Degree mode uses 3 rows)">
+            <input type="checkbox" id="pckeys-toggle" checked>
+            <span id="pckeys-toggle-text">On</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="kbviz-wrap">
+        <div class="kbviz-legend">
+          <span><span class="kbviz-swatch scale"></span>scale</span>
+          <span><span class="kbviz-swatch chord"></span>chord</span>
+          <span><span class="kbviz-swatch input"></span>held</span>
+        </div>
+        <div class="kbviz-nav" id="kbviz-nav">
+          <button class="kbviz-nav-btn" id="kbviz-nav-down" title="Octave down">−</button>
+          <button class="kbviz-nav-btn" id="kbviz-nav-up" title="Octave up">+</button>
+          <span class="kbviz-nav-label" id="kbviz-nav-label">3 octaves from <span class="val">—</span></span>
+        </div>
+        <div id="kbviz-host"><!-- populated by buildKeyboardViz() --></div>
+        <div class="kbviz-readout" id="kbviz-readout">—</div>
       </div>
     </div>
   </div>
@@ -709,52 +997,52 @@
       <div class="card">
         <h3>Scale Database</h3>
         <div class="field">
-          <label for="scale-mod" title="The number of equal divisions in an octave. 12 = standard equal temperament. Changing this remaps the scale intervals proportionally.">Mod</label>
-          <input type="number" id="scale-mod" value="12" min="1" max="96" title="The number of equal divisions in an octave. 12 = standard equal temperament. Changing this remaps the scale intervals proportionally.">
+          <label for="scale-mod" title="Divisions per octave (12 = standard)">EDO</label>
+          <input type="number" id="scale-mod" value="12" min="1" max="96" title="Divisions per octave (12 = standard)">
         </div>
         <div class="scale-search-wrap">
-          <input class="scale-search" id="scale-search" type="text" placeholder="Search scales…" title="Filter the scale list by name.">
+          <input class="scale-search" id="scale-search" type="text" placeholder="Search scales…" title="Filter scales by name">
         </div>
         <div class="scale-folders" id="scale-folders"></div>
         <div class="field" id="custom-steps-field" style="margin-top:12px;">
-          <label for="scale-custom" title="Enter scale positions directly as a comma-separated list, e.g. 0,2,4,5,7,9,11. Overrides the database selection. The generator also writes here.">Positions</label>
-          <input type="text" id="scale-custom" value="0,2,4,5,7,9,11" title="Enter scale positions directly as a comma-separated list, e.g. 0,2,4,5,7,9,11. Overrides the database selection. The generator also writes here.">
+          <label for="scale-custom" title="Comma-separated scale positions, e.g. 0,2,4,5,7,9,11">Positions</label>
+          <input type="text" id="scale-custom" value="0,2,4,5,7,9,11" title="Comma-separated scale positions, e.g. 0,2,4,5,7,9,11">
         </div>
       </div>
 
       <div class="card">
         <h3>Scale Generator</h3>
         <div class="gen-tabs">
-          <button class="gen-tab active" data-gen="euclidean" title="Björklund / Euclidean algorithm. Distributes events as evenly as possible across the steps.">Euclidean</button>
-          <button class="gen-tab" data-gen="cloughdouthett" title="Clough-Douthett maximally even sets. Positions notes at floor(i·mod/events) for i=0…events−1.">Clough-Douthett</button>
-          <button class="gen-tab" data-gen="deep" title="Deep scale generator. Places events at (i·multiplicity) mod steps. Multiplicity must be coprime to steps for all events to be distinct.">Deep</button>
+          <button class="gen-tab active" data-gen="euclidean" title="Spreads notes as evenly as possible">Euclidean</button>
+          <button class="gen-tab" data-gen="cloughdouthett" title="Maximally even note spacing">Clough-Douthett</button>
+          <button class="gen-tab" data-gen="deep" title="Places notes at fixed step multiples">Deep</button>
         </div>
 
         <!-- Euclidean panel -->
         <div class="gen-panel active" id="gen-panel-euclidean">
           <div class="field" style="margin-bottom:8px;">
-            <label for="gen-eu-events" title="Number of notes to place. Must not exceed Mod.">Events</label>
-            <input type="number" id="gen-eu-events" value="7" min="1" max="96" title="Number of notes to place. Must not exceed Mod.">
+            <label for="gen-eu-events" title="Number of notes to place">Events</label>
+            <input type="number" id="gen-eu-events" value="7" min="1" max="96" title="Number of notes to place">
           </div>
         </div>
 
         <!-- Clough-Douthett panel -->
         <div class="gen-panel" id="gen-panel-cloughdouthett">
           <div class="field" style="margin-bottom:8px;">
-            <label for="gen-cd-events" title="Number of notes to place. Must not exceed Mod.">Events</label>
-            <input type="number" id="gen-cd-events" value="7" min="1" max="96" title="Number of notes to place. Must not exceed Mod.">
+            <label for="gen-cd-events" title="Number of notes to place">Events</label>
+            <input type="number" id="gen-cd-events" value="7" min="1" max="96" title="Number of notes to place">
           </div>
         </div>
 
         <!-- Deep Rhythm panel -->
         <div class="gen-panel" id="gen-panel-deep">
           <div class="field">
-            <label for="gen-dr-events" title="Number of notes to place.">Events</label>
-            <input type="number" id="gen-dr-events" value="7" min="1" max="96" title="Number of notes to place.">
+            <label for="gen-dr-events" title="Number of notes to place">Events</label>
+            <input type="number" id="gen-dr-events" value="7" min="1" max="96" title="Number of notes to place">
           </div>
           <div class="field" style="margin-bottom:8px;">
-            <label for="gen-dr-mult" title="Step size between notes: position i = (i·multiplicity) mod steps. Use a value coprime to Mod to get Events distinct notes.">Multiplicity</label>
-            <input type="number" id="gen-dr-mult" value="7" min="1" title="Step size between notes: position i = (i·multiplicity) mod steps. Use a value coprime to Mod to get Events distinct notes.">
+            <label for="gen-dr-mult" title="Step size between notes; use a value coprime to Mod">Multiplicity</label>
+            <input type="number" id="gen-dr-mult" value="7" min="1" title="Step size between notes; use a value coprime to Mod">
           </div>
         </div>
 
@@ -768,10 +1056,6 @@
 
       <div class="card">
         <div class="readout" id="scale-readout">—</div>
-        <div class="row" style="margin-top:12px;">
-          <button class="action" id="scale-play" title="Play scale tones one after another, ascending.">▶ Play ascending</button>
-          <button class="ghost" id="scale-play-chord" title="Play all scale tones simultaneously.">▶ Play as chord</button>
-        </div>
       </div>
 
       <div class="card" id="analysis-card">
@@ -793,10 +1077,10 @@
 
       <div class="card">
         <div class="field" style="margin-bottom:0;">
-          <label for="chord-octave" title="Transposes chord playback up by this many octaves. Does not affect position math — only audio and helix placement.">Octave</label>
+          <label for="chord-octave" title="Chord octave">Octave</label>
           <div class="range-row">
-            <input type="range" id="chord-octave" min="0" max="9" value="5" title="Transposes chord playback up by this many octaves. Does not affect position math — only audio and helix placement.">
-            <span class="range-val" id="chord-octave-val">+5</span>
+            <input type="range" id="chord-octave" min="0" max="9" value="4" title="Chord octaves">
+            <span class="range-val" id="chord-octave-val">+4</span>
           </div>
         </div>
       </div>
@@ -805,12 +1089,12 @@
         <h3>Criterion</h3>
         <div class="criterion-row">
           <div class="criterion-toggle" id="criterion-toggle">
-            <button class="ctab active" id="criterion-type-position" data-value="position" title="Select chord tones by scale degree indices, e.g. 0,2,4 picks the 1st, 3rd and 5th degrees.">pos</button>
-            <button class="ctab" id="criterion-type-interval" data-value="interval" title="Select chord tones by step intervals from the anchor degree, e.g. 2,2,3 walks up in scale steps.">int</button>
+            <button class="ctab active" id="criterion-type-position" data-value="position" title="Pick chord tones by degree, e.g. 0,2,4 on a 7 note scale for a triad">pos</button>
+            <button class="ctab" id="criterion-type-interval" data-value="interval" title="Pick chord tones by step interval, e.g. 2,2,3 on a 7 note scale for a triad">int</button>
           </div>
           <div class="field criterion-input-field" style="margin-bottom:0; flex:1; min-width:0;">
-            <input type="text" id="criterion-position-input" value="0,2,4" placeholder="0,2,4" style="width:100%;" title="Scale degree indices to include in the chord. 0 is the anchor degree. Comma-separated.">
-            <input type="text" id="criterion-interval-steps" value="2,2,3" placeholder="2,2,3" style="width:100%; display:none;" title="Number of scale steps between successive chord tones, starting from the anchor degree. Comma-separated.">
+            <input type="text" id="criterion-position-input" value="0,2,4" placeholder="0,2,4" style="width:100%;" title="Degrees to include, comma-separated">
+            <input type="text" id="criterion-interval-steps" value="2,2,3" placeholder="2,2,3" style="width:100%; display:none;" title="Steps between tones, comma-separated">
           </div>
         </div>
 
@@ -823,19 +1107,19 @@
         <div id="criterion-interval-mode" style="display:none;"></div>
 
         <div class="field" style="margin-top:10px;">
-          <label for="chord-shift" title="Shifts which scale degree the criterion is applied from. 0 = root, 1 = second degree, etc. Negative values count from the end.">Degree</label>
+          <label for="chord-shift" title="Which scale degree to build the chord from">Degree</label>
           <div class="range-row">
-            <input type="range" id="chord-shift" min="-14" max="14" value="0" title="Shifts which scale degree the criterion is applied from. 0 = root, 1 = second degree, etc. Negative values count from the end.">
+            <input type="range" id="chord-shift" min="-7" max="14" value="0" title="Which scale degree to build the chord from">
             <span class="range-val" id="chord-shift-val">0</span>
           </div>
         </div>
         <div class="field">
-          <label for="chord-rotation" title="Rotates the interval pattern of the selected chord tones before returning them. Equivalent to a cyclic permutation of the voicing.">Rotation</label>
-          <input type="number" id="chord-rotation" value="0" style="width:65px;" title="Rotates the interval pattern of the selected chord tones before returning them. Equivalent to a cyclic permutation of the voicing.">
+          <label for="chord-rotation" title="Cyclically rotates the chord's voicing">Rotation</label>
+          <input type="number" id="chord-rotation" value="0" style="width:65px;" title="Cyclically rotates the chord's voicing">
         </div>
         <div class="field" style="margin-bottom:0;">
-          <label for="chord-prevoices" title="Number of extra octave doublings added below the chord before the criterion is applied. Extends the chord downward.">Voices</label>
-          <input type="number" id="chord-prevoices" value="0" style="width:65px;" title="Number of extra octave doublings added below the chord before the criterion is applied. Extends the chord downward.">
+          <label for="chord-prevoices" title="Extra octave doublings added below the chord">Voices</label>
+          <input type="number" id="chord-prevoices" value="0" style="width:65px;" title="Number of voices">
         </div>
       </div>
 
@@ -846,10 +1130,6 @@
 
       <div class="card">
         <div class="readout" id="chord-readout">—</div>
-        <div class="row" style="margin-top:12px;">
-          <button class="action" id="chord-play" title="Play all chord tones simultaneously.">▶ Play as chord</button>
-          <button class="ghost" id="chord-play-arp" title="Play chord tones one after another, ascending.">▶ Play arpeggio</button>
-        </div>
       </div>
     </div>
 
@@ -1757,6 +2037,666 @@ function playChordTones(notes, mod, { dur = 1.1 } = {}) {
   notes.forEach(n => playTone(noteToFreq(n, mod), now, dur, 0.13));
 }
 
+// ------------------------------------------------------------
+// Sustained voices — note-on/note-off engine for live playing
+// (MIDI keyboards, PC keyboard, and the keyboard visualizer).
+// Distinct from the fire-and-decay one-shots above: a voice holds
+// at a sustain level until explicitly released, exactly like a
+// real synth responding to a held key.
+// ------------------------------------------------------------
+const liveVoices = new Map(); // voiceId -> { osc, gainNode, releasing }
+
+function liveNoteOn(voiceId, freq, gainPeak = 0.16) {
+  liveNoteOff(voiceId, 0.01); // safety: clear any stuck voice with the same id
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gainNode = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  gainNode.gain.setValueAtTime(0, now);
+  gainNode.gain.linearRampToValueAtTime(gainPeak, now + 0.012);
+  osc.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  osc.start(now);
+  liveVoices.set(voiceId, { osc, gainNode, releasing: false });
+}
+
+function liveNoteOff(voiceId, release = 0.18) {
+  const voice = liveVoices.get(voiceId);
+  if (!voice || voice.releasing) return;
+  voice.releasing = true;
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  try {
+    voice.gainNode.gain.cancelScheduledValues(now);
+    voice.gainNode.gain.setValueAtTime(Math.max(voice.gainNode.gain.value, 0.0001), now);
+    voice.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + release);
+    voice.osc.stop(now + release + 0.03);
+  } catch (e) { /* already stopped */ }
+  liveVoices.delete(voiceId);
+}
+
+function liveNoteOffAll() {
+  [...liveVoices.keys()].forEach(id => liveNoteOff(id));
+}
+
+// ============================================================
+// INPUT ENGINE — unifies MIDI keyboards, the PC keyboard, and
+// clicks on the on-screen keyboard visualizer into one note
+// on/off pipeline, then dispatches each note through whichever
+// of the three modes is active:
+//   Root   — note sets the scale root, plays the current chord
+//   Degree — note sets the chord's anchor degree, plays the current chord
+//   Direct — note plays exactly as struck (note-in = note-out)
+// Root and Degree never sound the raw note or the scale — only the
+// resulting chord. Only Direct plays the literal pitch you pressed.
+//
+// All input is monophonic with last-note priority, across every source
+// (MIDI, PC keyboard, on-screen clicks) and every mode: physically-held
+// keys are tracked as an ordered stack, but only the most recently
+// pressed one ever plays. Releasing the playing key pops back to
+// whatever is still held underneath (and re-plays it); releasing a
+// key that wasn't on top silently drops out of the stack with no
+// audible change. This applies identically whether the stack holds
+// MIDI notes (Root/Direct) or abstract degree numbers (Degree).
+//
+// All incoming notes are standard MIDI note numbers (60 = C4),
+// regardless of source. They get converted into the app's native
+// `mod`-edo step space only at the point of use, via the same
+// ratio used elsewhere in the app (step = round(midiNote * mod/12)).
+// ============================================================
+const InputEngine = (() => {
+  let mode = 'root'; // 'root' | 'degree' | 'direct'
+  let midiAccess = null;
+  let activeMidiInput = null;
+
+  // ---- generic monophonic last-note-priority stack -----------------------
+  // A tiny reusable helper: tracks an ordered stack of physically-held
+  // identities (ids can be MIDI notes or degree numbers — the stack
+  // doesn't care) and calls onTopChanged(newTopId | null, oldTopId | null)
+  // only when the *playing* identity actually changes, never on every
+  // press/release.
+  function makeMonoStack(onTopChanged) {
+    const stack = []; // ordered oldest -> newest
+    function top() { return stack.length ? stack[stack.length - 1] : null; }
+    function press(id) {
+      if (stack.includes(id)) return; // already held — ignore retrigger/key-repeat
+      const oldTop = top();
+      stack.push(id);
+      const newTop = top(); // the just-pressed id, always becomes top
+      if (newTop !== oldTop) onTopChanged(newTop, oldTop);
+    }
+    function release(id) {
+      const idx = stack.indexOf(id);
+      if (idx === -1) return; // not held — ignore
+      const oldTop = top();
+      stack.splice(idx, 1);
+      const newTop = top();
+      if (newTop !== oldTop) onTopChanged(newTop, oldTop);
+    }
+    function clear() {
+      const oldTop = top();
+      stack.length = 0;
+      if (oldTop !== null) onTopChanged(null, oldTop);
+    }
+    function list() { return [...stack]; }
+    return { press, release, clear, list, top };
+  }
+
+  // ---- PC keyboard layout -------------------------------------------
+  // Lower row starts at C4 (60), upper row starts one octave higher (72).
+  // Used by Root and Direct modes, where keys represent actual pitches.
+  const PC_KEY_MAP = {
+    // lower octave: Z S X D C V G B H N J M  →  C C# D D# E F F# G G# A A# B
+    'z': 60, 's': 61, 'x': 62, 'd': 63, 'c': 64, 'v': 65,
+    'g': 66, 'b': 67, 'h': 68, 'n': 69, 'j': 70, 'm': 71,
+    // upper octave: Q 2 W 3 E R 5 T 6 Y 7 U  →  C C# D D# E F F# G G# A A# B
+    'q': 72, '2': 73, 'w': 74, '3': 75, 'e': 76, 'r': 77,
+    '5': 78, 't': 79, '6': 80, 'y': 81, '7': 82, 'u': 83,
+  };
+
+  // Degree mode's three-row layout, spanning three octaves of degrees:
+  // one octave BELOW 0 (bottom row), then 0's own octave (middle row),
+  // then one octave ABOVE that (top row). Defined by PHYSICAL key
+  // position (KeyboardEvent.code), not by the character a key produces —
+  // this keeps it identical across keyboard layouts/languages, since
+  // e.g. the keys after L/P differ by locale. Each row's pool is its
+  // maximum physical extent; only the first N keys of each row are
+  // actually mapped, where N = current scale length, so a pentatonic
+  // scale only needs 5 keys per row while a 7-note scale needs 7, etc.
+  // Degree numbering: bottom row = -N..-1, middle row = 0..N-1 (this is
+  // the row where '0' lives), top row = N..2N-1.
+  const DEGREE_ROW_POOLS = [
+    ['KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash'],
+    ['KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'Semicolon', 'Quote', 'Backslash'],
+    ['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP', 'BracketLeft'],
+  ];
+  const DEGREE_ROW_OFFSET_MULTIPLIER = [-1, 0, 1]; // bottom, middle, top — multiplied by N
+  // Builds { code -> degree } fresh from the current scale length. Cheap
+  // enough to rebuild on every keydown rather than caching/invalidating.
+  function degreeKeyMapForCurrentScale() {
+    const n = Math.max(0, lastScalePositions.length);
+    const map = {};
+    DEGREE_ROW_POOLS.forEach((pool, rowIndex) => {
+      const used = pool.slice(0, Math.min(n, pool.length));
+      const rowStart = DEGREE_ROW_OFFSET_MULTIPLIER[rowIndex] * n;
+      used.forEach((code, posInRow) => { map[code] = rowStart + posInRow; });
+    });
+    return map;
+  }
+
+  // trackKey -> identity (MIDI note for Root/Direct, degree number for
+  // Degree). A Map, not a Set, because keyup/blur need to recover the
+  // identity to release — trackKey alone isn't enough for that.
+  const heldPcKeys = new Map();
+
+  // ---- mode helpers ---------------------------------------------------
+  function pcModToStep(midiNote, mod) {
+    return Math.round(midiNote * mod / 12);
+  }
+
+  // The MIDI note that counts as degree 0 in Degree mode. Derived from
+  // the Chord Builder's Octave slider (chord-octave, 0–9, default 5):
+  // each +1 step of that slider shifts the anchor up one MIDI octave,
+  // with the default (5) anchoring at C4 (MIDI 60) — so the anchor
+  // tracks whatever octave the chord is currently set to play in.
+  function degreeAnchorNote() {
+    const slider = document.getElementById('chord-octave');
+    const sliderVal = slider ? (parseInt(slider.value, 10) || 0) : 5;
+    return 60 + (sliderVal - 5) * 12;
+  }
+
+  const WHITE_KEY_PCS = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
+  function isWhiteKeyNote(midiNote) {
+    return WHITE_KEY_PCS.includes(((midiNote % 12) + 12) % 12);
+  }
+  // Index of a white key in the white-key-only sequence, counting from
+  // the current degree-0 anchor (anchor = 0, next white key up = 1,
+  // next white key down = -1, etc.). Returns null for black keys —
+  // those are ignored entirely in Degree mode. The anchor itself moves
+  // with the chord-octave slider (see degreeAnchorNote); the counting
+  // logic here is otherwise unchanged.
+  function whiteKeyIndex(midiNote) {
+    if (!isWhiteKeyNote(midiNote)) return null;
+    const anchor = degreeAnchorNote();
+    const octave = Math.floor((midiNote - anchor) / 12);
+    const pc = ((midiNote % 12) + 12) % 12;
+    const posInOctave = WHITE_KEY_PCS.indexOf(pc);
+    return octave * 7 + posInOctave;
+  }
+
+  // Root mode side-effect: pitch-class of the incoming note (in current
+  // mod-space) becomes the scale's transposition. Reuses the Scale
+  // transform chain's "Root" step so it stays fully consistent with
+  // manual edits. This does NOT affect what gets played for this key —
+  // it only changes what subsequent scale/chord parameters mean.
+  function applyRootMode(midiNote) {
+    const mod = currentScaleMod();
+    const step = pcModToStep(midiNote, mod);
+    const pc = ((step % mod) + mod) % mod;
+    setScaleRootStep(pc);
+  }
+
+  function setScaleRootStep(step) {
+    const input = document.getElementById('scale-tx-root');
+    if (!input) return;
+    if (scaleChainEnabled && !scaleChainEnabled.root) {
+      // Turn the Root step on so the incoming note actually takes effect.
+      const toggleBtn = document.querySelector('#scale-chain-wrap .op-toggle[data-op="root"]');
+      if (toggleBtn) toggleBtn.click();
+    }
+    input.value = step;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function setChordShiftDegree(degree) {
+    const slider = document.getElementById('chord-shift');
+    if (!slider) return;
+    const min = parseInt(slider.min, 10);
+    const max = parseInt(slider.max, 10);
+    slider.value = Math.max(min, Math.min(max, degree));
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  // ---- Root/Direct mono stack ---------------------------------------------
+  // Top-of-stack is always a real MIDI pitch here, so it DOES get
+  // highlighted in the keyboard visualizer.
+  const pitchStack = makeMonoStack((newTop, oldTop) => {
+    if (mode === 'direct') {
+      if (oldTop !== null) liveNoteOff('direct-' + oldTop);
+      if (newTop !== null) {
+        const mod = currentScaleMod();
+        const step = pcModToStep(newTop, mod);
+        liveNoteOn('direct-' + newTop, noteToFreq(step, mod));
+      }
+    } else if (mode === 'root') {
+      if (newTop !== null) {
+        applyRootMode(newTop);
+        soundCurrentChordSustained();
+      } else {
+        liveNoteOffAll();
+      }
+    }
+    refreshKeyboardViz();
+    updateInputReadout();
+  });
+
+  function noteOn(midiNote, source) {
+    if (mode === 'degree') { noteOnDegree(whiteKeyIndex(midiNote), source); return; }
+    pitchStack.press(midiNote);
+  }
+  function noteOff(midiNote, source) {
+    if (mode === 'degree') { noteOffDegree(whiteKeyIndex(midiNote), source); return; }
+    pitchStack.release(midiNote);
+  }
+
+  // ---- Degree mono stack — Degree mode only --------------------------------
+  // Degree-mode "keys" are abstract selectors, not pitches: the top of this
+  // stack sets the chord's anchor degree and plays the resulting chord.
+  // Tracked in its own identity space (degree number; null = ignored, e.g.
+  // a MIDI black key) and intentionally NEVER reflected in the keyboard
+  // visualizer's held/highlight state, since a degree doesn't correspond
+  // to an actual note.
+  const degreeStack = makeMonoStack((newTop, oldTop) => {
+    if (newTop !== null) {
+      setChordShiftDegree(newTop);
+      soundCurrentChordSustained();
+    } else {
+      liveNoteOffAll();
+    }
+    updateDegreeReadout();
+  });
+
+  function noteOnDegree(degree, source) {
+    if (degree === null || degree === undefined) return; // e.g. a black key in Degree mode — ignored
+    degreeStack.press(degree);
+  }
+  function noteOffDegree(degree, source) {
+    if (degree === null || degree === undefined) return;
+    degreeStack.release(degree);
+  }
+  function updateDegreeReadout() {
+    const el = document.getElementById('kbviz-readout');
+    if (!el) return;
+    const heldList = degreeStack.list();
+    const top = degreeStack.top();
+    el.innerHTML = heldList.length
+      ? `<span class="label">degree</span> <span class="val">${top}</span> <span class="label">(playing) — held stack: ${heldList.join(', ')}</span>`
+      : `<span class="label">no input</span> (degree)`;
+  }
+
+  // plays the current chord result as sustained voices — used by Root
+  // and Degree modes only. Never plays the scale. Re-voices from
+  // scratch each call, which is simplest and keeps it perfectly in sync
+  // with whatever the scale/chord engine just produced.
+  function soundCurrentChordSustained() {
+    liveNoteOffAll();
+    const mod = currentScaleMod();
+    const notes = lastChordResultHeard || [];
+    notes.forEach((n, i) => liveNoteOn('chord-' + i, noteToFreq(n, mod), 0.11));
+  }
+
+  function updateInputReadout() {
+    const el = document.getElementById('kbviz-readout');
+    if (!el) return;
+    const heldList = pitchStack.list();
+    const top = pitchStack.top();
+    const modeLabel = mode === 'root' ? 'root' : 'direct';
+    el.innerHTML = heldList.length
+      ? `<span class="label">${midiNoteName(top)}</span> <span class="label">(playing, ${modeLabel}) — held stack: ${heldList.map(midiNoteName).join(', ')}</span>`
+      : `<span class="label">no input</span> (${modeLabel})`;
+  }
+
+  // ---- mode switching ---------------------------------------------------
+  function setMode(newMode) {
+    mode = newMode;
+    pitchStack.clear();
+    degreeStack.clear();
+    liveNoteOffAll(); // belt-and-suspenders: guarantees silence on mode switch
+    refreshKeyboardViz();
+  }
+  function getMode() { return mode; }
+  function getHeld() { return pitchStack.list(); }
+  function getHeldDegrees() { return degreeStack.list(); }
+
+  // ---- PC keyboard wiring ------------------------------------------------
+  // On by default; toggled by the user via setPcKeyboardEnabled(). Also
+  // suppressed while focus is in a text field (search box, number input,
+  // etc.), which is a separate concern from the user-facing toggle.
+  //
+  // Root/Direct use the chromatic PC_KEY_MAP, keyed by e.key (character
+  // produced) — fine there since those are fixed mnemonic letters, not
+  // tied to scale length. Degree mode is keyed by e.code (physical key
+  // position) via degreeKeyMapForCurrentScale(), since that mapping must
+  // stay identical across keyboard layouts/languages and adapts to the
+  // current scale length on every press.
+  let pcKeyboardEnabled = true;
+  function setPcKeyboardEnabled(v) {
+    pcKeyboardEnabled = v;
+    if (!v) {
+      // Release anything currently held so disabling never leaves a stuck note.
+      heldPcKeys.forEach(identity => pcKeyUp(identity));
+      heldPcKeys.clear();
+    }
+  }
+  function getPcKeyboardEnabled() { return pcKeyboardEnabled; }
+  function isTypingTarget(el) {
+    if (!el) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  }
+  function pcKeyDown(identity) {
+    if (mode === 'degree') noteOnDegree(identity, 'pc');
+    else noteOn(identity, 'pc');
+  }
+  function pcKeyUp(identity) {
+    if (mode === 'degree') noteOffDegree(identity, 'pc');
+    else noteOff(identity, 'pc');
+  }
+  // Resolves a raw keyboard event to { trackKey, identity } in the
+  // currently-active mapping, or null if the event doesn't map to
+  // anything right now. trackKey is what heldPcKeys uses for dedup
+  // (must stay stable across down/up for the same physical key even
+  // if the mapping were to change mid-hold); identity is what gets
+  // passed to noteOn/noteOff or noteOnDegree/noteOffDegree.
+  function resolvePcEvent(e) {
+    if (mode === 'degree') {
+      const map = degreeKeyMapForCurrentScale();
+      if (!(e.code in map)) return null;
+      return { trackKey: 'code:' + e.code, identity: map[e.code] };
+    }
+    const key = e.key.toLowerCase();
+    if (!(key in PC_KEY_MAP)) return null;
+    return { trackKey: 'key:' + key, identity: PC_KEY_MAP[key] };
+  }
+  function setupPcKeyboard() {
+    window.addEventListener('keydown', e => {
+      if (!pcKeyboardEnabled) return;
+      if (isTypingTarget(document.activeElement)) return;
+      const resolved = resolvePcEvent(e);
+      if (!resolved) return;
+      if (heldPcKeys.has(resolved.trackKey)) return; // ignore OS key-repeat
+      heldPcKeys.set(resolved.trackKey, resolved.identity);
+      e.preventDefault();
+      pcKeyDown(resolved.identity);
+    });
+    window.addEventListener('keyup', e => {
+      const resolved = resolvePcEvent(e);
+      if (!resolved) return;
+      if (!heldPcKeys.has(resolved.trackKey)) return;
+      heldPcKeys.delete(resolved.trackKey);
+      pcKeyUp(resolved.identity);
+    });
+    // Releasing focus/visibility loss shouldn't leave stuck notes.
+    window.addEventListener('blur', () => {
+      heldPcKeys.forEach(identity => pcKeyUp(identity));
+      heldPcKeys.clear();
+    });
+  }
+
+  // ---- Web MIDI wiring ----------------------------------------------------
+  function attachInputListeners(input) {
+    input.onmidimessage = (msg) => {
+      const [status, note, velocity] = msg.data;
+      const command = status & 0xf0;
+      if (command === 0x90 && velocity > 0) noteOn(note, 'midi');
+      else if (command === 0x80 || (command === 0x90 && velocity === 0)) noteOff(note, 'midi');
+    };
+  }
+  function detachAll() {
+    if (!midiAccess) return;
+    for (const input of midiAccess.inputs.values()) input.onmidimessage = null;
+  }
+  function populateDeviceList() {
+    const select = document.getElementById('midi-device-select');
+    if (!select || !midiAccess) return;
+    const inputs = [...midiAccess.inputs.values()];
+    select.innerHTML = '';
+    if (inputs.length === 0) {
+      select.innerHTML = '<option value="">No MIDI inputs found</option>';
+      activeMidiInput = null;
+      return;
+    }
+    const allOpt = document.createElement('option');
+    allOpt.value = '__all__';
+    allOpt.textContent = 'All connected devices';
+    select.appendChild(allOpt);
+    inputs.forEach(inp => {
+      const opt = document.createElement('option');
+      opt.value = inp.id;
+      opt.textContent = inp.name || ('Input ' + inp.id);
+      select.appendChild(opt);
+    });
+    select.value = '__all__';
+    selectMidiInput('__all__');
+  }
+  function selectMidiInput(value) {
+    detachAll();
+    if (!midiAccess) return;
+    const inputs = [...midiAccess.inputs.values()];
+    if (value === '__all__') {
+      inputs.forEach(attachInputListeners);
+      activeMidiInput = '__all__';
+    } else {
+      const found = inputs.find(i => i.id === value);
+      if (found) attachInputListeners(found);
+      activeMidiInput = value;
+    }
+  }
+  async function enableMidi() {
+    const dot = document.getElementById('midi-status-dot');
+    if (!navigator.requestMIDIAccess) {
+      if (dot) { dot.classList.add('warn'); dot.title = 'Web MIDI is not supported in this browser.'; }
+      const select = document.getElementById('midi-device-select');
+      if (select) select.innerHTML = '<option value="">Web MIDI unsupported in this browser</option>';
+      return;
+    }
+    try {
+      midiAccess = await navigator.requestMIDIAccess();
+      if (dot) { dot.classList.remove('warn'); dot.classList.add('live'); dot.title = 'MIDI access granted.'; }
+      populateDeviceList();
+      midiAccess.onstatechange = populateDeviceList;
+    } catch (err) {
+      if (dot) { dot.classList.add('warn'); dot.title = 'MIDI access was denied: ' + err.message; }
+    }
+  }
+
+  return {
+    setMode, getMode, getHeld, getHeldDegrees, noteOn, noteOff,
+    noteOnDegree, noteOffDegree,
+    getplayingNote: () => pitchStack.top(),
+    setupPcKeyboard, setPcKeyboardEnabled, getPcKeyboardEnabled,
+    enableMidi, selectMidiInput,
+  };
+})();
+
+// MIDI note number → name, e.g. 60 -> "C4"
+function midiNoteName(n) {
+  const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const pc = ((n % 12) + 12) % 12;
+  const octave = Math.floor(n / 12) - 1;
+  return names[pc] + octave;
+}
+
+// ============================================================
+// KEYBOARD VISUALIZER — an on-screen piano showing a 3-octave
+// window anchored to the scale's root note (not always C), so the
+// keys stay small enough to view without lateral scrolling. Shows,
+// within that window:
+//   - every scale tone (blue)
+//   - the current chord tones, at their actual sounded octave (amber)
+//   - whatever is currently held — MIDI, PC keys, or clicks (red ring)
+// Doubles as an input device: clicking/dragging a key fires the same
+// InputEngine.noteOn/noteOff pipeline as MIDI and PC keys.
+//
+// The window is [root, root+12, root+24] — root is always the LOWEST
+// note shown — and can be nudged up/down an octave at a time with the
+// +/- buttons (kbvizOctaveOffset). That offset is a pure view setting:
+// it does not move the scale root, transpose anything, or affect
+// audio. It persists across root changes (window = new root + offset)
+// rather than resetting, so once a user has navigated to a register
+// they want to watch, further scale edits don't yank the view away.
+//
+// Only handles mod === 12 (standard piano layout). For other moduli
+// we show a placeholder — see the project notes for next steps there.
+// ============================================================
+const KBVIZ_WHITE_PCS = [0, 2, 4, 5, 7, 9, 11];
+const KBVIZ_BLACK_PCS = [1, 3, 6, 8, 10];
+// Black keys are sized/positioned as a fraction of a white key's width,
+// in percent, so the whole keyboard scales to fill its container instead
+// of using fixed pixel widths (which forced horizontal scrolling).
+const KBVIZ_BLACK_WIDTH_RATIO = 0.62;
+
+function isBlackPc(pc) { return KBVIZ_BLACK_PCS.includes(pc); }
+
+// View-only state: how many octaves the visible window is shifted
+// from its root-anchored default. Persists across root/scale changes.
+let kbvizOctaveOffset = 0;
+
+// The scale root's pitch class, taken from lastScalePositions[0] (the
+// app's existing convention for "the root" — see the Helix module).
+// Only meaningful at mod===12, which is the only case this visualizer
+// handles at all.
+function kbvizRootPitchClass() {
+  const mod = currentScaleMod();
+  const rootStep = (lastScalePositions && lastScalePositions.length) ? lastScalePositions[0] : 0;
+  return ((rootStep % mod) + mod) % mod;
+}
+
+// The lowest MIDI note of the visible 3-octave window. The window always
+// starts on a C, spanning three full octaves C→C→C→C (no shifting based
+// on the scale root's pitch class). N is the chord octave slider's target
+// octave; the window starts one octave BELOW that (N-1), so for the
+// default slider value it opens at C3, showing C3-C4, C4-C5, C5-C6.
+// The user's +/- offset shifts the whole window further up or down.
+function kbvizWindowLow() {
+  const sliderEl = document.getElementById('chord-octave');
+  const sliderVal = sliderEl ? (parseInt(sliderEl.value, 10) || 0) : 5;
+  const chordOctaveC = 60 + (sliderVal - 5) * 12; // the C note of the selected octave (N)
+  return chordOctaveC - 12 + kbvizOctaveOffset * 12; // window starts one octave below N (N-1), always on a C
+}
+function kbvizWindowHigh() {
+  return kbvizWindowLow() + 36; // 3 full octaves: low, low+12, low+24, low+36
+}
+
+function buildKeyboardViz() {
+  const host = document.getElementById('kbviz-host');
+  if (!host) return;
+  const mod = currentScaleMod();
+
+  if (mod !== 12) {
+    host.innerHTML = `<div class="kbviz-unsupported">
+      Keyboard view only supports 12-tone scales. Mod is set to <span class="val">${mod}</span>.
+    </div>`;
+    return;
+  }
+
+  const low = kbvizWindowLow();
+  const high = kbvizWindowHigh();
+
+  // Build static DOM for the current window; refreshKeyboardViz() repaints
+  // colors on top, and is also called whenever just the window's contents
+  // need recoloring without a full rebuild.
+  const whiteKeys = [];
+  for (let n = low; n <= high; n++) {
+    const pc = ((n % 12) + 12) % 12;
+    if (!isBlackPc(pc)) whiteKeys.push(n);
+  }
+
+  // Label the root note specifically (every octave of it within the
+  // window), rather than hardcoding "C" — the window isn't always
+  // C-anchored anymore.
+  const rootPc = kbvizRootPitchClass();
+  const whiteHTML = whiteKeys.map(n => {
+    const pc = ((n % 12) + 12) % 12;
+    const label = (pc === rootPc) ? midiNoteName(n) : '';
+    return `<div class="kbviz-white" data-note="${n}"><span class="kbviz-label">${label}</span></div>`;
+  }).join('');
+
+  // Position black keys relative to white-key index.
+  const blackOffsetAfterWhiteIndex = []; // [{ note, whiteIndexBefore }]
+  let wi = -1;
+  for (let n = low; n <= high; n++) {
+    const pc = ((n % 12) + 12) % 12;
+    if (!isBlackPc(pc)) { wi++; continue; }
+    blackOffsetAfterWhiteIndex.push({ note: n, whiteIndexBefore: wi });
+  }
+  // White keys are laid out with flex, each taking an equal share of the
+  // container width, so black-key position/width is computed in percent
+  // of that same container rather than fixed pixels.
+  const whiteWidthPct = 100 / whiteKeys.length;
+  const blackWidthPct = whiteWidthPct * KBVIZ_BLACK_WIDTH_RATIO;
+  const blackHTML = blackOffsetAfterWhiteIndex.map(({ note, whiteIndexBefore }) => {
+    const leftPct = (whiteIndexBefore + 1) * whiteWidthPct - blackWidthPct / 2;
+    return `<div class="kbviz-black" data-note="${note}" style="left:${leftPct}%; width:${blackWidthPct}%;"></div>`;
+  }).join('');
+
+  host.innerHTML = `<div class="kbviz-scroll"><div class="kbviz-keys">${whiteHTML}${blackHTML}</div></div>`;
+
+  // Wire pointer interaction — press to noteOn, release/leave to noteOff.
+  host.querySelectorAll('.kbviz-white, .kbviz-black').forEach(keyEl => {
+    const note = parseInt(keyEl.dataset.note, 10);
+    const press = (e) => { e.preventDefault(); InputEngine.noteOn(note, 'click'); };
+    const release = () => InputEngine.noteOff(note, 'click');
+    keyEl.addEventListener('mousedown', press);
+    keyEl.addEventListener('mouseup', release);
+    keyEl.addEventListener('mouseleave', release);
+    keyEl.addEventListener('touchstart', press, { passive: false });
+    keyEl.addEventListener('touchend', release);
+  });
+
+  updateKbvizNavLabel();
+  refreshKeyboardViz();
+}
+
+// Updates the "3 octaves from <root note>" label and enables/disables
+// nothing (the +/- buttons always work — there's no upper/lower bound
+// on the octave offset beyond what MIDI note numbers can represent).
+function updateKbvizNavLabel() {
+  const label = document.getElementById('kbviz-nav-label');
+  if (!label) return;
+  const mod = currentScaleMod();
+  if (mod !== 12) { label.innerHTML = ''; return; }
+  const low = kbvizWindowLow();
+  label.innerHTML = `3 octaves from <span class="val">${midiNoteName(low)}</span>`;
+}
+
+// Repaints key colors/held-state without rebuilding the DOM. Cheap
+// enough to call on every note on/off and every scale/chord update —
+// but does NOT detect window changes (root pitch-class or +/- offset);
+// callers that may have changed the window must call buildKeyboardViz()
+// instead, which rebuilds the DOM and then calls this anyway.
+function refreshKeyboardViz() {
+  const host = document.getElementById('kbviz-host');
+  if (!host) return;
+  const mod = currentScaleMod();
+  if (mod !== 12) return; // unsupported-mod placeholder is already shown
+
+  const scalePcs = new Set((lastScalePositions || []).map(n => ((n % mod) + mod) % mod));
+  // Chord tones are shown at their actual sounded octave (post-octave-shift),
+  // matching the helix's treatment of chord tones vs. the always-pitch-class scale ring.
+  const chordNoteSet = new Set(lastChordResultHeard || []);
+  // Held-key highlighting only makes sense for real pitches (Root/Direct),
+  // and only for whichever single note is actually playing right now —
+  // input is monophonic with last-note priority, so highlighting the whole
+  // physically-held stack would misleadingly suggest several notes sound
+  // at once. Degree mode's keys are abstract selectors, not notes, so
+  // nothing is ever highlighted there.
+  const isDegreeMode = InputEngine.getMode && InputEngine.getMode() === 'degree';
+  const playingNote = (!isDegreeMode && InputEngine.getplayingNote) ? InputEngine.getplayingNote() : null;
+  const heldSet = playingNote !== null ? new Set([playingNote]) : new Set();
+
+  host.querySelectorAll('.kbviz-white, .kbviz-black').forEach(keyEl => {
+    const note = parseInt(keyEl.dataset.note, 10);
+    const pc = ((note % 12) + 12) % 12;
+    keyEl.classList.remove('scale-tone', 'chord-tone', 'held');
+    if (scalePcs.has(pc)) keyEl.classList.add('scale-tone');
+    if (chordNoteSet.has(note)) keyEl.classList.add('chord-tone');
+    if (heldSet.has(note)) keyEl.classList.add('held');
+  });
+}
+
 // ============================================================
 // HELIX — 3D comprehensive view (Three.js)
 //
@@ -2386,8 +3326,8 @@ function buildChainStepHTML(prefix, step) {
   }).join('\n      ');
   return `
     <div class="chain-step ${on ? 'on' : 'off'}" id="${prefix}card-${step.op}" data-op="${step.op}">
-      <span class="drag-handle" title="Drag to reorder. Step order affects the result.">⠿</span>
-      <button class="op-toggle ${on ? 'on' : 'off'}" data-op="${step.op}" title="Toggle this step on or off.">${on ? 'on' : 'off'}</button>
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <button class="op-toggle ${on ? 'on' : 'off'}" data-op="${step.op}" title="Toggle on/off">${on ? 'on' : 'off'}</button>
       <span class="step-name" title="${step.hint || ''}">${step.name}</span>
       ${fieldsHTML}
     </div>`;
@@ -2568,6 +3508,14 @@ const scaleReadout = document.getElementById('scale-readout');
 
 let lastScalePositions = [0, 2, 4, 5, 7, 9, 11];
 let _lastScaleMod = 12; // track prev mod for LCM rescaling
+let _kbvizLastMod = null; // tracks the mod the keyboard visualizer was last built for
+let _kbvizLastRootPc = null; // tracks the root pitch-class the visible window was last anchored to
+let _kbvizLastOctaveSlider = null; // tracks the chord-octave slider value the window was last anchored to
+// Declared here (ahead of the Chord Builder section below) because
+// updateScaleLab() runs once during init before the Chord Builder's
+// own variables exist, and its cascade reads these via refreshKeyboardViz().
+let lastChordResult = [];
+let lastChordResultHeard = [];
 
 const scaleChainState = {
   stepOrder: ['root', 'mode', 'degree', 'invert', 'opmirror', 'negative'],
@@ -2575,21 +3523,21 @@ const scaleChainState = {
 
 const SCALE_CHAIN_STEPS = [
   { op: 'root', name: 'Root', defaultOn: true,
-    hint: 'Transposes the scale by shifting the interval-vector offset. Value is added to the current offset, so it composes with other steps.',
-    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Semitones to transpose.' }] },
+    hint: 'Transposes the scale',
+    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Semitones to transpose' }] },
   { op: 'mode', name: 'Mode', defaultOn: true,
-    hint: 'Rotates the interval pattern of the scale. 0 = Ionian, 1 = Dorian, 2 = Phrygian… Steps can be dragged to reorder.',
-    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Mode index (rotation amount).' }] },
+    hint: 'Rotates the scale\'s interval pattern (0 = Ionian, 1 = Dorian…)',
+    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount' }] },
   { op: 'degree', name: 'Degree', defaultOn: true,
-    hint: 'Shifts the starting index into the position sequence. Changes which note the scale starts on without reordering the intervals.',
-    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Degree to start from.' }] },
+    hint: 'Changes which note the scale starts on',
+    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Degree to start from' }] },
   { op: 'invert', name: 'Invert',
-    hint: 'Reverses the interval order around an axis index. Flips the scale shape while keeping the number of notes the same.',
-    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Index in the interval vector to reflect around.' }] },
+    hint: 'Flips the scale shape around an axis',
+    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Axis to reflect around' }] },
   { op: 'opmirror', name: 'Mirror',
-    hint: 'Reflects positions and re-anchors so the lowest pitch stays fixed. No axis parameter — the re-anchoring cancels any axis choice.' },
+    hint: 'Reflects the scale, keeping the lowest note fixed' },
   { op: 'negative', name: 'Negative',
-    hint: 'Negative harmony: reflects pitch classes around the axis halfway between root and perfect fifth. Axis = (2·root + fifth) mod mod.',
+    hint: 'Negative harmony: mirrors around root + fifth',
     fields: [] },
 ];
 
@@ -2934,50 +3882,44 @@ function updateScaleAnalysis(posData, mod) {
   const html = `
     <div class="asection">Properties</div>
     <div class="abadge-row">
-      ${badge('Euclidean', eucl,
-        'Notes are distributed as evenly as possible across mod steps (Björklund/Euclidean rhythm)')}
-      ${badge('Winograd-deep', winDeep,
-        'Every distance 1…k−1 appears, each a different number of times')}
-      ${badge('Erdős-deep', erdDeep,
-        'No two distinct distances appear the same number of times')}
-      ${badge('Palindrome', palindrome,
-        'The interval sequence reads identically forwards and backwards')}
-      ${badge('Balanced', balanced,
-        'The pitch classes sum to zero as unit-circle vectors (equal pull in all directions)')}
-      ${badge('Chiral', chiral,
-        'The scale and its mirror image are not related by any transposition')}
+      ${badge('Euclidean', eucl, 'Notes spread as evenly as possible')}
+      ${badge('Winograd-deep', winDeep, 'Every distance appears a different number of times')}
+      ${badge('Erdős-deep', erdDeep, 'No two distances appear equally often')}
+      ${badge('Palindrome', palindrome, 'Reads the same forwards and backwards')}
+      ${badge('Balanced', balanced, 'Pitch classes pull evenly in all directions')}
+      ${badge('Chiral', chiral, 'Not the same as its own mirror image')}
     </div>
 
     <div class="asection">Distances</div>
     <div class="astat-grid">
       ${astat('Geodesic distances',
         `<div class="adist-row">${distPillsHTML || '<span class="astat-val dim">—</span>'}</div>`,
-        'All pairwise shortest distances on the pitch-class circle, shown as distance × count')}
+        'Pairwise distances between notes, as distance × count')}
       ${astat('Regression evenness', `${evenness.toFixed(3)}`,
-        'Sum of |position − ideal position| where ideal = equally spaced. 0 = maximally even.')}
+        'How far from evenly spaced. 0 = maximally even.')}
       ${astat('Rhythmic oddity', `${oddity}`,
-        'Number of note pairs exactly mod/2 steps apart (diametrically opposite). 0 = no antipodal pairs.')}
+        'Note pairs directly opposite each other')}
     </div>
 
     <div class="asection">Binary string</div>
     <div class="astat-grid">
       ${astat('Shannon entropy',
         `${entropy.toFixed(4)} <span style="font-size:11px;color:var(--paper-dim)">bits</span>`,
-        'Entropy of the length-mod binary string (1 = note present, 0 = absent). Max 1 bit when k = mod/2.')}
+        'Unpredictability of the note pattern')}
       ${astat('Transition complexity', `${txc}`,
-        '0↔1 transitions in the binary string. Equals 2k for a scale with no adjacent notes; lower means clustering.')}
+        'Note/gap switches — lower means more clustering')}
       ${astat('Longest run', `${lseq}`,
-        'Longest unbroken block of identical bits (0s or 1s).')}
+        'Longest stretch of consecutive notes or gaps')}
     </div>
 
     <div class="asection">Symmetry</div>
     <div class="astat-grid">
       ${astat('Rotational axes',
         rotAxes.length ? rotAxes.join(', ') : '<span class="dim">—</span>',
-        'Transpositions t (1 ≤ t < mod) under which the scale maps onto itself')}
+        'Transpositions that map the scale onto itself')}
       ${astat('Reflective axes',
         `<span class="astat-val blue">${refAxes.length ? fmtAxes(refAxes) : '<span class="dim">—</span>'}</span>`,
-        'Axes of mirror symmetry on the pitch-class circle. Half-integer axes fall between steps.')}
+        'Points of mirror symmetry')}
     </div>
 
     <div class="asection">Generation</div>
@@ -2987,17 +3929,16 @@ function updateScaleAnalysis(posData, mod) {
           ? `m = <span style="color:var(--amber)">${gen}</span>`
           : `<span class="dim">—</span>`,
         gen !== null
-          ? `{0, ${gen}, ${2*gen%mod}, …} mod ${mod} — all k notes are multiples of ${gen}`
-          : 'No integer m produces this scale as {i·m mod ' + mod + '}')}
+          ? `All notes are multiples of ${gen}`
+          : 'No single step size produces this scale')}
       ${astat('Aksak (mod)',
         aksak,
-        'Aksak rhythms have an odd period. Prime = authentic aksak; odd composite = quasi-aksak; even = pseudo-aksak (not true aksak).')}
+        'Prime = true aksak, odd = quasi-aksak, even = pseudo-aksak')}
     </div>
 
     <div class="asection">Distribution spectra</div>
     <div class="astat-hint" style="margin-bottom:8px">
-      Row &lt;j&gt; lists the specific interval sizes that span exactly j scale steps. w = max−min.
-      w=0: strictly proper (one size per generic interval). w=1: Myhill property.
+      Interval sizes spanning j scale steps. w=0: one size per interval. w=1: Myhill property.
     </div>
     <div class="astat full" style="padding-top:0">
       <div class="astat-label" style="margin-bottom:4px">
@@ -3122,6 +4063,27 @@ function updateScaleLab() {
     <span class="label">positions</span> <span class="val">${fmtList(posData)}</span><span style="color:var(--paper-dim)">${negAxisNote}</span>
   `;
 
+  // Keyboard visualizer: rebuild if mod, root pitch-class (label position
+  // only — window itself is always C-anchored), OR chord-octave slider
+  // changed. Otherwise just repaint colors (cheap, called on every nudge).
+  const _kbvizRootPc = (mod === 12) ? kbvizRootPitchClass() : null;
+  const _kbvizOctaveSliderVal = document.getElementById('chord-octave') ? parseInt(document.getElementById('chord-octave').value, 10) : 5;
+  if (mod !== _kbvizLastMod || _kbvizRootPc !== _kbvizLastRootPc || _kbvizOctaveSliderVal !== _kbvizLastOctaveSlider) {
+    _kbvizLastMod = mod;
+    _kbvizLastRootPc = _kbvizRootPc;
+    _kbvizLastOctaveSlider = _kbvizOctaveSliderVal;
+    buildKeyboardViz();
+  } else {
+    refreshKeyboardViz();
+  }
+
+  // Degree slider range: spans 3 octaves of degrees relative to the
+  // current scale length N — one octave below 0 and two above, i.e.
+  // min=-N, max=2N. Recomputed any time the scale length changes; the
+  // slider's current value is clamped into the new range if needed
+  // (dispatching input so anything listening stays in sync).
+  syncChordShiftRange();
+
   // Cascade: rebuild degree chips if scale size changed, then update chord builder
   if (typeof buildDegreeChips === 'function' && chordChainEnabled !== null) {
     buildDegreeChips();
@@ -3131,6 +4093,31 @@ function updateScaleLab() {
     updateHelix({ mod, scalePositions: posData, chordPositions: [], anchorNote: null });
   }
 }
+
+// Keeps the chord-shift slider's min/max at [-N, 2N] where N is the
+// current scale length. Called whenever the scale changes. If the
+// slider's current value falls outside the new range, it's clamped
+// and an input event is dispatched so dependents (the chord builder,
+// the readout span) recompute against the corrected value.
+let _chordShiftLastN = null;
+function syncChordShiftRange() {
+  const slider = document.getElementById('chord-shift');
+  if (!slider) return;
+  const n = Math.max(0, lastScalePositions.length);
+  if (n === _chordShiftLastN) return; // no change since last sync
+  _chordShiftLastN = n;
+  const newMin = -n;
+  const newMax = 2 * n;
+  slider.min = String(newMin);
+  slider.max = String(newMax);
+  const current = parseInt(slider.value, 10) || 0;
+  const clamped = Math.max(newMin, Math.min(newMax, current));
+  if (clamped !== current) {
+    slider.value = clamped;
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
 
 function getNum(id) {
   const el = document.getElementById(id);
@@ -3290,15 +4277,6 @@ scaleModInput.addEventListener('input', () => {
 });
 scaleCustomInput.addEventListener('input', () => { scaleCustomInput.dataset.dirty = '1'; _scaleLastSetBy = 'custom'; updateScaleLab(); });
 
-document.getElementById('scale-play').addEventListener('click', () => {
-  const semis = typeof chordOctaveSemis === 'function' ? chordOctaveSemis() : 0;
-  playSequence(transposeByOctave(lastScalePositions, currentScaleMod(), semis), currentScaleMod(), { gap: 0.28, dur: 0.34 });
-});
-document.getElementById('scale-play-chord').addEventListener('click', () => {
-  const semis = typeof chordOctaveSemis === 'function' ? chordOctaveSemis() : 0;
-  playChordTones(transposeByOctave(lastScalePositions, currentScaleMod(), semis), currentScaleMod());
-});
-
 updateScaleLab();
 
 // ============================================================
@@ -3321,8 +4299,6 @@ const chordOctaveVal = document.getElementById('chord-octave-val');
 
 let _criterionMode = 'position'; // 'position' or 'interval'
 let selectedDegrees = new Set([0, 2, 4]); // kept for compat; actually read from criterionPositionInput
-let lastChordResult = [];
-let lastChordResultHeard = [];
 
 const chordChainState = {
   stepOrder: ['degree', 'root', 'mode', 'invert', 'opmirror', 'negative'],
@@ -3330,21 +4306,21 @@ const chordChainState = {
 
 const CHORD_CHAIN_STEPS = [
   { op: 'degree', name: 'Position', defaultOn: true,
-    hint: 'Shifts the starting index into the chord tones (voicing / inversion). Changes which chord tone sits at the bottom without reordering intervals.',
-    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Index of the chord tone to start from.' }] },
+    hint: 'Changes which chord tone sits at the bottom (voicing)',
+    fields: [{ id: 'tx-degree', value: 0, step: 1, title: 'Chord tone to start from' }] },
   { op: 'root', name: 'Offset',
-    hint: 'Transposes the chord by shifting the interval-vector offset. Value is added to the current offset, so it composes with other steps.',
-    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Semitones to transpose.' }] },
+    hint: 'Transposes the chord',
+    fields: [{ id: 'tx-root', value: 0, step: 1, title: 'Semitones to transpose' }] },
   { op: 'mode', name: 'Mode',
-    hint: 'Rotates the interval pattern of the chord tones. Equivalent to a cyclic permutation of the voicing intervals.',
-    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount.' }] },
+    hint: 'Rotates the chord\'s voicing intervals',
+    fields: [{ id: 'tx-mode', value: 0, step: 1, title: 'Rotation amount' }] },
   { op: 'invert', name: 'Invert',
-    hint: 'Reflects each tone around an axis position, then sorts ascending. Classic chord inversion when axis = 0.',
-    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Position to reflect around.' }] },
+    hint: 'Classic chord inversion around an axis',
+    fields: [{ id: 'tx-axis', value: 0, step: 1, title: 'Axis to reflect around' }] },
   { op: 'opmirror', name: 'Mirror',
-    hint: 'Reflects positions and re-anchors so the lowest pitch stays fixed.' },
+    hint: 'Reflects the chord, keeping the lowest note fixed' },
   { op: 'negative', name: 'Negative',
-    hint: 'Negative harmony: negates the scale and folds the shift degree before selecting. The reflection axis is taken from the Offset step root value.',
+    hint: 'Negative harmony applied to the chord',
     fields: [] },
 ];
 
@@ -3382,7 +4358,9 @@ function updateChordBuilder() {
   const scalePositions = new PositionVector(lastScalePositions, mod);
   const scaleSize = lastScalePositions.length;
   if (scaleSize === 0) {
+    lastChordResultHeard = [];
     updateHelix({ mod, scalePositions: [], chordPositions: [], anchorNote: null });
+    refreshKeyboardViz();
     return;
   }
 
@@ -3395,7 +4373,9 @@ function updateChordBuilder() {
     const degrees = parseDegrees(criterionPositionInput.value).sort((a, b) => a - b);
     if (degrees.length === 0) {
       chordReadout.innerHTML = `<span class="label">enter at least one degree</span>`;
+      lastChordResultHeard = [];
       updateHelix({ mod, scalePositions: lastScalePositions, chordPositions: [], anchorNote: null });
+      refreshKeyboardViz();
       return;
     }
     criterion = new PositionVector(degrees, scaleSize);
@@ -3405,7 +4385,9 @@ function updateChordBuilder() {
     const intervalSteps = parseSteps(criterionIntervalSteps.value);
     if (intervalSteps.length === 0) {
       chordReadout.innerHTML = `<span class="label">enter at least one step</span>`;
+      lastChordResultHeard = [];
       updateHelix({ mod, scalePositions: lastScalePositions, chordPositions: [], anchorNote: null });
+      refreshKeyboardViz();
       return;
     }
     criterion = new IntervalVector(intervalSteps, 0, scaleSize);
@@ -3532,6 +4514,7 @@ function updateChordBuilder() {
   lastChordResultHeard = transposeByOctave(result, mod, octSemis);
 
   updateHelix({ mod, scalePositions: helixScalePositions, chordPositions: lastChordResultHeard, anchorNote });
+  refreshKeyboardViz();
 }
 
 // Octave control: maps the slider integer to a step offset.
@@ -3560,15 +4543,74 @@ chordOctave.addEventListener('input', () => {
   const v = parseInt(chordOctave.value, 10) || 0;
   chordOctaveVal.textContent = (v >= 0 ? '+' : '') + v;
   updateChordBuilder();
+  // The keyboard visualizer window is anchored to the chord-octave slider,
+  // so a change here needs a rebuild regardless of whether the scale changed.
+  if (v !== _kbvizLastOctaveSlider) {
+    _kbvizLastOctaveSlider = v;
+    buildKeyboardViz();
+  }
 });
-
-document.getElementById('chord-play').addEventListener('click', () => playChordTones(lastChordResultHeard, currentScaleMod()));
-document.getElementById('chord-play-arp').addEventListener('click', () => playSequence(lastChordResultHeard, currentScaleMod(), { gap: 0.24, dur: 0.3 }));
-
 
 syncCriterionModeVisibility();
 buildDegreeChips();
 updateChordBuilder();
+
+// ============================================================
+// INPUT PANEL WIRING — mode tabs, MIDI device controls, PC-keys
+// toggle. The InputEngine module (defined earlier, near the audio
+// engine) does the actual note handling; this just wires the DOM.
+//
+// There is no global transport here by design: the app never plays
+// audio on its own just because a parameter changed, and there is no
+// manual Play button either — the only audio comes from actually
+// playing a note (MIDI, PC keyboard, or clicking the visualizer).
+// ============================================================
+const MODE_DESCRIPTIONS = {
+  root: 'Sets the <span class="val">scale root</span> and plays the chord.',
+  degree: 'Sets the <span class="val">scale degree</span> and plays the chord.',
+  direct: 'Pass-through.',
+};
+
+document.querySelectorAll('#input-mode-toggle .mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#input-mode-toggle .mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const m = tab.dataset.mode;
+    InputEngine.setMode(m);
+    document.getElementById('input-mode-desc').innerHTML = MODE_DESCRIPTIONS[m];
+    refreshKeyboardViz();
+  });
+});
+
+// MIDI access is requested automatically on load (no Enable button) —
+// the browser's native permission prompt appears immediately.
+InputEngine.enableMidi();
+document.getElementById('midi-device-select').addEventListener('change', (e) => InputEngine.selectMidiInput(e.target.value));
+
+// PC keyboard: on by default, toggled via the pill switch in the input card.
+InputEngine.setupPcKeyboard();
+const pckeysToggle = document.getElementById('pckeys-toggle');
+const pckeysToggleLabel = document.getElementById('pckeys-toggle-label');
+const pckeysToggleText = document.getElementById('pckeys-toggle-text');
+pckeysToggle.addEventListener('change', () => {
+  const on = pckeysToggle.checked;
+  InputEngine.setPcKeyboardEnabled(on);
+  pckeysToggleLabel.classList.toggle('on', on);
+  pckeysToggleText.textContent = on ? 'On' : 'Off';
+});
+
+// Keyboard visualizer octave nav: +/- shift the visible 3-octave window
+// by one octave at a time. View-only — does not move the scale root,
+// transpose anything, or affect audio. The offset persists across scale
+// edits (see kbvizOctaveOffset / buildKeyboardViz's header comment).
+document.getElementById('kbviz-nav-down').addEventListener('click', () => {
+  kbvizOctaveOffset -= 1;
+  buildKeyboardViz();
+});
+document.getElementById('kbviz-nav-up').addEventListener('click', () => {
+  kbvizOctaveOffset += 1;
+  buildKeyboardViz();
+});
 
 // ============================================================
 // TOOLTIP — JS-driven replacement for the CSS ::after approach.
